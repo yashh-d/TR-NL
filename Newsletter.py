@@ -196,13 +196,13 @@ st.title("Token Relations 📊 Newsletter")
 st.markdown(
     """
     **Newsletter Generator Steps:**
-    **Step 1:** Extract key points from the context and client documentation + create detailed structure for each section of the newsletter
-    **Step 2:** Human review and edit of extracted key points.
-    **Step 3:** Draft 'What happened' section.
-    **Step 4:** Draft 'Why it matters' section.
-    **Step 5:** Draft & Enhance 'The big picture' section. 
-    **Step 6:** Compare the generated newsletter's style against the example.
-    **Step 7:** Apply style edits to the enhanced newsletter based on feedback.
+    **Step 1:** Extract key points from the context and client documentation + create detailed structure for each section of the newsletter \n
+    **Step 2:** Human review and edit of extracted key points.\n
+    **Step 3:** Draft 'What happened' section.\n
+    **Step 4:** Draft 'Why it matters' section.\n
+    **Step 5:** Draft & Enhance 'The big picture' section. \n
+    **Step 6:** Compare the generated newsletter's style against the example.\n
+    **Step 7:** Apply style edits to the enhanced newsletter based on feedback.\n
     """
 )
 
