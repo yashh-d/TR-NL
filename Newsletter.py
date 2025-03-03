@@ -181,16 +181,26 @@ chain_community_bullet_points = LLMChain(llm=anthropic_llm, prompt=community_bul
 ################################
 # 6. STREAMLIT UI
 ################################
+# Hide the "Created by" footer
+hide_footer_style = """
+    <style>
+    .reportview-container .main footer {visibility: hidden;}
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    </style>
+"""
+st.markdown(hide_footer_style, unsafe_allow_html=True)
+
 st.title("Token Relations 📊 Newsletter")
 
 st.markdown(
     """
     **Newsletter Generator Steps:**
-    **Step 1:** Extract key points from the context and client documentation.
+    **Step 1:** Extract key points from the context and client documentation + create detailed structure for each section of the newsletter
     **Step 2:** Human review and edit of extracted key points.
     **Step 3:** Draft 'What happened' section.
     **Step 4:** Draft 'Why it matters' section.
-    **Step 5:** Draft & Enhance 'The big picture' section. (Combined Step!)
+    **Step 5:** Draft & Enhance 'The big picture' section. 
     **Step 6:** Compare the generated newsletter's style against the example.
     **Step 7:** Apply style edits to the enhanced newsletter based on feedback.
     """
@@ -261,7 +271,7 @@ if st.session_state.step1_completed and not st.session_state.step2_started:
 if st.session_state.step2_started:
     if newsletter_example and topic:
         # Step 2a
-        with st.spinner("Step 2a: Drafting 'What happened'..."):
+        with st.spinner("Drafting 'What happened'..."):
             what_happened_draft = chain_what_happened.run(
                 newsletter_example=newsletter_example,
                 key_points=st.session_state.edited_key_points,
@@ -271,7 +281,7 @@ if st.session_state.step2_started:
         st.write(what_happened_draft)
 
         # Step 2b
-        with st.spinner("Step 2b: Drafting 'Why it matters'..."):
+        with st.spinner("Drafting 'Why it matters'..."):
             why_matters_draft = chain_why_matters.run(
                 newsletter_example=newsletter_example,
                 key_points=st.session_state.edited_key_points,
@@ -281,14 +291,14 @@ if st.session_state.step2_started:
         st.write(why_matters_draft)
 
         # Step 2c (Combined Draft & Enhance 'Big Picture')
-        with st.spinner("Step 2c: Drafting & Enhancing 'The big picture'..."):
+        with st.spinner("Drafting & Enhancing 'The big picture'..."):
             big_picture_enhanced = chain_combined_big_picture.run(
                 newsletter_example=newsletter_example,
                 key_points=st.session_state.edited_key_points,
                 topic=topic,
                 long_term_doc=long_term_doc  # Pass long_term_doc for combined chain
             )
-        st.markdown("### Draft & Enhanced - The Big Picture")
+        st.markdown("### Draft + Enhanced - The Big Picture")
         st.write(big_picture_enhanced)
 
         newsletter_draft = (
