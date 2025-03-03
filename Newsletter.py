@@ -136,17 +136,31 @@ style_edit_prompt = ChatPromptTemplate.from_messages([
     )
 ])
 
-# (H) BULLET POINT PROMPT - USING ANTHROPIC
-bullet_point_prompt = ChatPromptTemplate.from_messages([
+# (H) ECOSYSTEM BULLET POINT PROMPT
+ecosystem_bullet_point_prompt = ChatPromptTemplate.from_messages([
     (
         "system",
-        "Analyst: Generate concise bullet points summarizing text. Focus on core events, significance, impact. Simple, neutral, informative style. Match example format if provided."
+        "Analyst: Generate concise ecosystem bullet points for web3 newsletter. Focus on technical developments, partnerships, protocol upgrades, integrations, and ecosystem growth. Simple, neutral, informative style. Match example format if provided."
     ),
     (
         "human",
         "Context:\n{context_text}\n\n"
         "Example Bullet Points:\n{example_bullet_points}\n\n"
-        "Generate bullet points with the most important information."
+        "Generate ecosystem-focused bullet points with the most important information."
+    )
+])
+
+# (I) COMMUNITY BULLET POINT PROMPT
+community_bullet_point_prompt = ChatPromptTemplate.from_messages([
+    (
+        "system",
+        "Analyst: Generate concise community bullet points for web3 newsletter. Focus on community events, user adoption, social metrics, governance participation, and community engagement. Simple, neutral, informative style. Match example format if provided."
+    ),
+    (
+        "human",
+        "Context:\n{context_text}\n\n"
+        "Example Bullet Points:\n{example_bullet_points}\n\n"
+        "Generate community-focused bullet points with the most important information."
     )
 ])
 
@@ -160,8 +174,9 @@ chain_combined_big_picture = LLMChain(llm=anthropic_llm, prompt=combined_big_pic
 chain_style = LLMChain(llm=anthropic_llm, prompt=style_check_prompt)
 chain_style_edit = LLMChain(llm=anthropic_llm, prompt=style_edit_prompt)
 
-# HERE we use Anthropic for bullet points:
-chain_bullet_points = LLMChain(llm=anthropic_llm, prompt=bullet_point_prompt)
+# Separate chains for ecosystem and community bullet points
+chain_ecosystem_bullet_points = LLMChain(llm=anthropic_llm, prompt=ecosystem_bullet_point_prompt)
+chain_community_bullet_points = LLMChain(llm=anthropic_llm, prompt=community_bullet_point_prompt)
 
 ################################
 # 6. STREAMLIT UI
@@ -171,13 +186,13 @@ st.title("Token Relations 📊 Newsletter")
 st.markdown(
     """
     **Newsletter Generator Steps:**
-    **Step 1:** Extract key points from the context and client documentation.\n
-    **Step 2 :** Human review and edit of extracted key points.\n
-    **Step 3 :** Draft 'What happened' section.\n
-    **Step 4:** Draft 'Why it matters' section.\n
-    **Step 5:** Draft & Enhance 'The big picture' section. (Combined Step!)\n
-    **Step 6** Compare the generated newsletter's style against the example.\n
-    **Step 7** Apply style edits to the enhanced newsletter based on feedback.\n
+    **Step 1:** Extract key points from the context and client documentation.
+    **Step 2:** Human review and edit of extracted key points.
+    **Step 3:** Draft 'What happened' section.
+    **Step 4:** Draft 'Why it matters' section.
+    **Step 5:** Draft & Enhance 'The big picture' section. (Combined Step!)
+    **Step 6:** Compare the generated newsletter's style against the example.
+    **Step 7:** Apply style edits to the enhanced newsletter based on feedback.
     """
 )
 
@@ -319,18 +334,52 @@ if not (st.session_state.step1_completed and not st.session_state.step2_started)
     # Separator
     st.markdown("---")
     st.title("Bullet Point Generator")
-
-    example_bullet_points_input = st.text_area("Example Bullet Points (Optional)", height=100)
-    bullet_point_context_input = st.text_area("Context for Bullet Points", height=150)
-
-    if st.button("Generate Bullet Points (Anthropic)"):
-        if bullet_point_context_input:
-            with st.spinner("Generating bullet points with Anthropic..."):
-                bullet_points_output = chain_bullet_points.run(
-                    context_text=bullet_point_context_input,
-                    example_bullet_points=example_bullet_points_input
-                )
-            st.markdown("### Generated Bullet Points")
-            st.write(bullet_points_output)
-        else:
-            st.error("Please fill in the Context for Bullet Points.")
+    
+    # Create tabs for ecosystem and community bullet points
+    ecosystem_tab, community_tab = st.tabs(["Ecosystem Bullet Points", "Community Bullet Points"])
+    
+    with ecosystem_tab:
+        st.markdown("### Ecosystem Bullet Points")
+        st.markdown("Generate bullet points related to technical developments, partnerships, protocol upgrades, and ecosystem growth.")
+        
+        ecosystem_example = st.text_area("Example Ecosystem Bullet Points (Optional)", 
+                                         placeholder="• New integration with Layer 2 solution\n• Protocol upgrades for better scalability",
+                                         height=100)
+        ecosystem_context = st.text_area("Ecosystem Context", 
+                                         placeholder="Enter information about technical developments, partnerships, integrations, etc.",
+                                         height=150)
+        
+        if st.button("Generate Ecosystem Bullet Points"):
+            if ecosystem_context:
+                with st.spinner("Generating ecosystem bullet points..."):
+                    ecosystem_bullets = chain_ecosystem_bullet_points.run(
+                        context_text=ecosystem_context,
+                        example_bullet_points=ecosystem_example
+                    )
+                st.markdown("#### Generated Ecosystem Bullet Points")
+                st.write(ecosystem_bullets)
+            else:
+                st.error("Please fill in the Ecosystem Context.")
+    
+    with community_tab:
+        st.markdown("### Community Bullet Points")
+        st.markdown("Generate bullet points related to community engagement, events, social metrics, and user adoption.")
+        
+        community_example = st.text_area("Example Community Bullet Points (Optional)",
+                                         placeholder="• Community AMA session attracted 500+ participants\n• 20% growth in Discord members",
+                                         height=100)
+        community_context = st.text_area("Community Context", 
+                                         placeholder="Enter information about community events, social engagement, adoption metrics, etc.",
+                                         height=150)
+        
+        if st.button("Generate Community Bullet Points"):
+            if community_context:
+                with st.spinner("Generating community bullet points..."):
+                    community_bullets = chain_community_bullet_points.run(
+                        context_text=community_context,
+                        example_bullet_points=community_example
+                    )
+                st.markdown("#### Generated Community Bullet Points")
+                st.write(community_bullets)
+            else:
+                st.error("Please fill in the Community Context.")
