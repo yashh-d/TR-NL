@@ -1,0 +1,13 @@
+🟪What happened: Agglayer released v0.2, making pessimistic proofs live on mainnet for cross-chain security.
+
+🟪Why does it matter: Pessimistic proofs create a security foundation by monitoring three key aspects: chain update accuracy, internal accounting verification, and cross-chain accounting consistency. These systems ensure chains can't withdraw more than they deposit in the Unified Bridge, protecting the entire network from individual chain issues. 
+
+The Unified Bridge is key for safe cross-chain transactions and joining liquidity across all AggChains. The pessimistic proofs also create a security boundary or "firewall" between chains. So, even if a chain becomes compromised, only funds within that specific chain are affected, protecting the broader network from potential threats.
+
+Safe asset transfers across chains with different security models gives users and developers the confidence to perform multi-chain transactions freely. The security and flexibility of pessimistic proofs in Agglayer are key for unifying liquidity and users across all chains, creating a multistack future.
+
+This upgrade is adding a stronger security foundation to the Agglayer. It unlocks the ability for various blockchain networks to safely connect to Agglayer for secure cross-chain interoperability. Previously, only chains built with Polygon CDK could connect to it, now other chains with different security models are able to tap into the Agglayer. Currently, chains without zero-knowledge proofs are on testnet and are looking to launch on mainnet soon.
+
+🟪The big picture: Agglayer is on a path to becoming a unifying layer, creating a multi-chain and stack agnostic ecosystem. By supporting different technologies and making secure transactions a priority, Agglayer can help solve blockchain fragmentation across chains. With the upgrade to pessimistic proofs, Agglayer has made a significant step towards this by making secure cross-chain transactions a priority.
+
+The ecosystem is also on the road to fast interop, with a goal of sub five second finality. The next upgrade, Agglayer version 0.3, is planned for release in Q1 of this year. This version will go even further to unify the blockchain ecosystem by enabling support for any EVM chains on Agglayer. These upgrades align Agglayers mission for creating a secure and interoperable ecosystem that can help improve user experiences and developers innovation onchain.
