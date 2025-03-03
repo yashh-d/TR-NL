@@ -220,7 +220,7 @@ if selected_client:
 STYLE_FILES = {
     "Technology Focused": "style_references/technology_style.txt",
     "Metrics Driven": "style_references/metrics_style.txt",
-    "New Dev/Partnership": "style_references/partnership_style.txt",
+    "Partnership/New Development": "style_references/partnership_style.txt",
 }
 selected_style = st.selectbox("Select Newsletter Style Reference", list(STYLE_FILES.keys()))
 newsletter_example = ""
