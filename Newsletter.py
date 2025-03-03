@@ -366,10 +366,8 @@ if not (st.session_state.step1_completed and not st.session_state.step2_started)
         st.markdown("Generate bullet points related to community engagement, events, social metrics, and user adoption.")
         
         community_example = st.text_area("Example Community Bullet Points (Optional)",
-                                         placeholder="• Community AMA session attracted 500+ participants\n• 20% growth in Discord members",
                                          height=100)
         community_context = st.text_area("Community Context", 
-                                         placeholder="Enter information about community events, social engagement, adoption metrics, etc.",
                                          height=150)
         
         if st.button("Generate Community Bullet Points"):
