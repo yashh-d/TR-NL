@@ -171,13 +171,13 @@ st.title("Token Relations 📊 Newsletter")
 st.markdown(
     """
     **Newsletter Generator Steps:**
-    **Step 1:** Extract key points from the context and client documentation.
-    **Step 1.5:** Human review and edit of extracted key points.
-    **Step 2a:** Draft 'What happened' section.
-    **Step 2b:** Draft 'Why it matters' section.
-    **Step 2c:** Draft & Enhance 'The big picture' section. (Combined Step!)
-    **Step 4:** Compare the generated newsletter's style against the example.
-    **Step 5:** Apply style edits to the enhanced newsletter based on feedback.
+    **Step 1:** Extract key points from the context and client documentation.\n
+    **Step 2 :** Human review and edit of extracted key points.\n
+    **Step 3 :** Draft 'What happened' section.\n
+    **Step 4:** Draft 'Why it matters' section.\n
+    **Step 5:** Draft & Enhance 'The big picture' section. (Combined Step!)\n
+    **Step 6** Compare the generated newsletter's style against the example.\n
+    **Step 7** Apply style edits to the enhanced newsletter based on feedback.\n
     """
 )
 
@@ -221,7 +221,7 @@ if 'step2_started' not in st.session_state:
     st.session_state.step2_started = False
     
 # Button: Extract Key Points (Step 1)
-if st.button("Step 1: Extract Key Points") and not st.session_state.step1_completed:
+if st.button("Step 1: Extract Key Points + Structure for Newsletter") and not st.session_state.step1_completed:
     if context_text:
         with st.spinner("Extracting key points..."):
             st.session_state.key_points_output = chain_extract.run(context_text=context_text, long_term_doc=long_term_doc)
@@ -233,10 +233,10 @@ if st.button("Step 1: Extract Key Points") and not st.session_state.step1_comple
 # Display extracted key points and allow for editing
 if st.session_state.step1_completed and not st.session_state.step2_started:
     st.markdown("### Extracted Key Points")
-    st.write("Please review and edit the extracted key points below if needed:")
+    st.write("Please review and edit the key points + structure below if needed:")
     st.session_state.edited_key_points = st.text_area("Edit Key Points", 
                                                       value=st.session_state.key_points_output, 
-                                                      height=300)
+                                                      height=1000)
     
     # Button to confirm key points and continue
     if st.button("Confirm Key Points and Generate Newsletter"):
@@ -318,7 +318,7 @@ if st.session_state.step2_started:
 if not (st.session_state.step1_completed and not st.session_state.step2_started):
     # Separator
     st.markdown("---")
-    st.title("Bullet Point Generator (Anthropic)")
+    st.title("Bullet Point Generator")
 
     example_bullet_points_input = st.text_area("Example Bullet Points (Optional)", height=100)
     bullet_point_context_input = st.text_area("Context for Bullet Points", height=150)
