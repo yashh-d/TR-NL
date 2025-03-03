@@ -342,11 +342,9 @@ if not (st.session_state.step1_completed and not st.session_state.step2_started)
         st.markdown("### Ecosystem Bullet Points")
         st.markdown("Generate bullet points related to technical developments, partnerships, protocol upgrades, and ecosystem growth.")
         
-        ecosystem_example = st.text_area("Example Ecosystem Bullet Points (Optional)", 
-                                         placeholder="• New integration with Layer 2 solution\n• Protocol upgrades for better scalability",
+        ecosystem_example = st.text_area("Example Ecosystem Bullet Points (Optional)",                            
                                          height=100)
         ecosystem_context = st.text_area("Ecosystem Context", 
-                                         placeholder="Enter information about technical developments, partnerships, integrations, etc.",
                                          height=150)
         
         if st.button("Generate Ecosystem Bullet Points"):
