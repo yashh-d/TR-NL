@@ -1,0 +1,15 @@
+🟪What happened: Polygon Labs has partnered with India’s largest telecom provider, Jio, and released a web browser, JioSphere, to reward users for surfing the internet.
+
+🟪Why does it matter: Jio's telecom infrastructure is India’s largest provider, serving over 450 million users. It is owned and operated by Reliance Industries, India’s largest company by market cap at over $189 billion. This partnership sets the stage to provide exposure for even more blockchain use cases like digital payments and scalable consumer products that are directly accessible to users through the mobile carrier. 
+
+“Jio is like, the thing in India,” Polygon Co-Founder Sandeep Nailwal said on X. “It is the company which brought India online and now is going to take India onchain. It is so big in India that many thinkers would tell you that it has significant impact on India's current GDP growth.”
+
+Now these users are coming into web3, Nailwal added. “India will soon be miles ahead in terms of DOU, Daily Onchain Users.”
+
+With that said, the JioSphere climbed the ranks on the App Store and Play Store in India after launch. It provides users with a wallet integration, powered by Polygon's blockchain infrastructure. The wallet also gives users the ability to earn rewards while surfing the internet. These digital rewards, called Jiocoins, accumulate in users' wallets, creating an incentives bridge between everyday internet usage and blockchain technology.
+
+🟪The big picture: In 2024, Polygon ranked in the top three ecosystems in Asia by active developer market share. The region's developer momentum is particularly evident in India, which led in onboarding new crypto developers. This positions the Jio and Polygon partnership for large scale impact on web3 growth and innovation, with developers able to create diverse use cases reaching over 450 million users.
+
+The Polygon PoS network enables secure, scalable products like JioSphere through its infrastructure. With technologies like Polygon CDK, Plonky3, and Agglayer, the platform is equipped to support India's vast user base. 
+
+Specifically with Plonky3, it delivers a fast zero-knowledge proving system with speedy transaction processing, low costs, and improved user experiences. As a result, the combination of Plonky3 and Polygon's Erigon CDK strengthens scalability for dApps. Through the fast interoperability of Agglayer, developers and users benefit from an improved web3 experience across a unified ecosystem that feels like a single chain.
