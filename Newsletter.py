@@ -27,6 +27,82 @@ CLIENT_FILES = {
     "Sei": "summaries/sei_summary.txt",
 }
 
+# Client-specific style references - each client has their own set of styles
+CLIENT_STYLE_FILES = {
+    "Aptos": {
+        "Technology Focused": "style_references/aptos/technology_style.txt",
+        "Developer Outreach": "style_references/aptos/developer_style.txt",
+        "Ecosystem Growth": "style_references/aptos/ecosystem_style.txt"
+    },
+    "Avalanche": {
+        "Technology Focused": "style_references/avalanche/technology_style.txt",
+        "DeFi Narrative": "style_references/avalanche/defi_style.txt",
+        "Enterprise Focus": "style_references/avalanche/enterprise_style.txt"
+    },
+    "BitcoinOS": {
+        "Security Focused": "style_references/bitcoinos/security_style.txt",
+        "Technical Deep Dive": "style_references/bitcoinos/technical_style.txt",
+        "Adoption Metrics": "style_references/bitcoinos/adoption_style.txt"
+    },
+    "Core DAO": {
+        "Governance Updates": "style_references/core_dao/governance_style.txt",
+        "Community Growth": "style_references/core_dao/community_style.txt",
+        "Technical Development": "style_references/core_dao/technical_style.txt"
+    },
+    "DeCharge": {
+        "Product Focused": "style_references/decharge/product_style.txt",
+        "User Growth": "style_references/decharge/user_style.txt",
+        "Market Impact": "style_references/decharge/market_style.txt"
+    },
+    "Flow": {
+        "Gaming Focus": "style_references/flow/gaming_style.txt",
+        "NFT Ecosystem": "style_references/flow/nft_style.txt",
+        "Developer Adoption": "style_references/flow/developer_style.txt"
+    },
+    "Injective": {
+        "DeFi Innovation": "style_references/injective/defi_style.txt",
+        "Trading Metrics": "style_references/injective/trading_style.txt",
+        "Technical Updates": "style_references/injective/technical_style.txt"
+    },
+    "Matchain": {
+        "Infrastructure Focus": "style_references/matchain/infrastructure_style.txt",
+        "Interoperability": "style_references/matchain/interoperability_style.txt",
+        "Enterprise Adoption": "style_references/matchain/enterprise_style.txt"
+    },
+    "Optimism": {
+        "Scaling Solutions": "style_references/optimism/scaling_style.txt",
+        "Ecosystem Growth": "style_references/optimism/ecosystem_style.txt",
+        "Governance Updates": "style_references/optimism/governance_style.txt"
+    },
+    "Polygon": {
+        "ZK Technology": "style_references/polygon/zk_style.txt",
+        "Enterprise Partnerships": "style_references/polygon/enterprise_style.txt",
+        "Developer Ecosystem": "style_references/polygon/developer_style.txt"
+    },
+    "Ripple": {
+        "Institutional Focus": "style_references/ripple/institutional_style.txt",
+        "Regulatory Updates": "style_references/ripple/regulatory_style.txt",
+        "Cross-border Payments": "style_references/ripple/payments_style.txt"
+    },
+    "The Root Network": {
+        "Gaming Integration": "style_references/root_network/gaming_style.txt",
+        "Infrastructure Updates": "style_references/root_network/infrastructure_style.txt",
+        "Ecosystem Growth": "style_references/root_network/ecosystem_style.txt"
+    },
+    "Sei": {
+        "Performance Metrics": "style_references/sei/performance_style.txt",
+        "DeFi Ecosystem": "style_references/sei/defi_style.txt",
+        "Developer Adoption": "style_references/sei/developer_style.txt"
+    }
+}
+
+# Default style references as fallback
+DEFAULT_STYLE_FILES = {
+    "Technology Focused": "style_references/default/technology_style.txt",
+    "Metrics Driven": "style_references/default/metrics_style.txt",
+    "Partnership/New Development": "style_references/default/partnership_style.txt",
+}
+
 ###################
 # 2. ANTHROPIC SETUP
 ###################
@@ -216,20 +292,26 @@ if selected_client:
     except FileNotFoundError:
         st.error(f"File not found for {selected_client} at {CLIENT_FILES[selected_client]}.")
 
-# --- Style Reference Selection ---
-STYLE_FILES = {
-    "Technology Focused": "style_references/technology_style.txt",
-    "Metrics Driven": "style_references/metrics_style.txt",
-    "Partnership/New Development": "style_references/partnership_style.txt",
-}
-selected_style = st.selectbox("Select Newsletter Style Reference", list(STYLE_FILES.keys()))
+# --- Style Reference Selection based on selected client ---
+# First check if the client has its own style references
+if selected_client and selected_client in CLIENT_STYLE_FILES:
+    available_styles = CLIENT_STYLE_FILES[selected_client]
+else:
+    # Fallback to default styles if client doesn't have specific styles
+    available_styles = DEFAULT_STYLE_FILES
+    st.info(f"Using default style references for {selected_client}.")
+
+selected_style = st.selectbox("Select Newsletter Style Reference", list(available_styles.keys()))
 newsletter_example = ""
 if selected_style:
+    style_file_path = available_styles[selected_style]
     try:
-        with open(STYLE_FILES[selected_style], "r") as f:
+        with open(style_file_path, "r") as f:
             newsletter_example = f.read()
     except FileNotFoundError:
-        st.error(f"Style file not found at {STYLE_FILES[selected_style]}. Please ensure the file exists.")
+        st.error(f"Style file not found at {style_file_path}. Please ensure the file exists.")
+        # Provide information about the expected directory structure
+        st.info(f"Make sure to create the directory: style_references/{selected_client.lower().replace(' ', '_')}/")
 
 # --- Newsletter user inputs ---
 context_text = st.text_area("Context Information (Newsletter)", height=150)

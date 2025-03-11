@@ -1,0 +1,16 @@
+Aptos' Ankaa accelerator program’s demo day showcased 4 teams focused on DeFi, AI and more
+🌐What happened: The Aptos-centric Ankaa accelerator program had its demo day on Thursday with five projects focused on empowering users and onboarding new ones.
+
+🌐Why does it matter: Ankaa is a $10 million initiative established by the Aptos Foundation in collaboration with OKX Ventures. It aims to strengthen projects building within the Aptos ecosystem and provide them with resources to help them succeed. The participating projects – PlaysOut, Luckey Keyboard, Mereo and Hyperfluid –  were first introduced back in September 2024. But they recently met in-person at Aptos NYC office to learn from market leaders like Dragonfly Partner Tom Schmidt, OKX Ventures Partner Jeff Ren and Token Relations’ very own CEO Jacquelyn Melinek. The teams also got to present their projects to potential investors on demo day.
+
+The initiative aims to empower early founders by providing tailored mentorship, access to a curated curriculum and a global network of VCs and industry leaders. By offering these startups tailored tools, such as direct support from prominent industry players, the program can foster innovation and help these products transform wishful ideas into long lasting businesses.
+
+Here’s an outline of the five projects:
+
+PlaysOut, a digital content platform that embeds mini-games into an app, using WeChat’s framework through a partnership with Tencent Cloud. It aims to unlock new revenue streams for web2 and web3 users alike.
+Luckey Keyboard, by integrating tokenomics and AI, the product uses a built-in wallet system to reward participating users contributing to its on-device AI feature.
+Mereo, a reputation-focused engagement platform that rewards fans who provide data insights on consumer behavior. Its goal is to turn casual fans into engaged ones in order to support artists and their respective IPs.
+Hyperfluid, an onchain trading platform built natively for Aptos. It leverages Aptos' high throughput and minimal latency to offer a more competitive liquidity option for incoming web3 users.
+🌐The big picture: Overall, Ankaa’s accelerator program is focused on community building at the core. The 3-month long program can help open the door for innovative projects and showcase what's possible for blockchain projects positioned with the right resources.
+
+A lot of startups fail for various reasons, but with the Ankaa accelerator program, it can serve as a platform for these projects to learn from others’ previous mistakes and have a chance at succeeding in the long term.

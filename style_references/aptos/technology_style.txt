@@ -1,0 +1,14 @@
+Ethena’s USDe deploys to Aptos as stablecoins gain momentum
+🌐What happened: Ethena Labs integrated Aptos to bring USDe, the third-largest stablecoin by market cap, to the network. 
+
+🌐Why does it matter: Ethena’s integration with Aptos expands the network’s accessibility of dollar-backed assets. This marks the sixth stablecoin to launch on Aptos, further expanding its stablecoin ecosystem.
+
+Unlike traditional stablecoins, which typically have fiat reserves, USDe maintains its peg through “delta-neutral hedging strategies” in crypto markets. Delta neutral is a fancy term for a financial strategy that aims to remain stable when the underlying asset, in this case crypto collaterals, changes.  
+
+For context, USDe is the third largest stablecoin by market cap at $5.9 billion, according to CoinMarketCap. Alongside USDT and USDC support, this means Aptos supports the three largest stablecoins by market cap. Thus showcasing Aptos’ ability to expand options for users in the DeFi sector.
+
+In Aptos’ case, the USDe integration gives users more options for their liquidity and the ability to earn yield. This is also shown through protocols such as Thala Labs and Echelon, which are already integrating USDe to its trading pools for lending opportunities.
+
+🌐The big picture: Since stablecoins are foundational to DeFi and blockchain-based financial applications, this integration can be seen as a way to provide more accessibility for users and developers alike. By incorporating USDe, Aptos can strengthen its stablecoin ecosystem and enhance the way its users interact with DeFi protocols. 
+
+A large number of options also let aspiring Move-developers that are looking to build DeFi applications or payment solutions access a deeper liquidity pool. This is because lending protocols contribute to the overall liquidity on a network and if they integrate USDe, it can increase activity.

@@ -1,0 +1,12 @@
+🌐What happened: Aptos stablecoin market cap hit $615 million on Dec. 18, up nearly 100% on the week, DefiLlama data shows.
+
+🌐Why does it matter: Stablecoins have grown in popularity across the entire crypto sector and show strong growth on the Aptos network. 
+
+Earlier this year, Tether (USDT) launched its stablecoin to the Aptos network. This brought the biggest stablecoin by market cap to the Move-powered blockchain, broadening the reach for accessible, dollar-backed digital assets. At the time, when Tether was first launched, the stablecoin market cap was just $273 million. Since then, it has grown more than 125%, proving that there is product-market fit for stablecoins on Aptos.
+
+For additional reference, natively-minted USDT supply on Aptos went from $130 million to $340 million during December, Token Terminal reported. This metric is important because it shows the popularity of stablecoin usage on the network. 
+
+Aptos is optimized for scalable, secure and interoperable stablecoin usage, making it a promising landing zone to set a foundation for stablecoin dominance. This in turn could pave the way for future DeFi innovations on Aptos and encourage builders and users looking for a strong stablecoin market. 
+
+🌐The big picture: As stablecoins like USDT gain traction, its usage on the Aptos network directly aligns with a mission to provide solutions for various DeFi needs. This can lead to larger-scale adoption and developer engagement across multiple financial applications. 
+

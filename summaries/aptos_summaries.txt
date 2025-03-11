@@ -1,0 +1,54 @@
+Aptos Overview
+Aptos is a Proof-of-Stake (PoS) Layer-1 blockchain that uses the Move programming language for smart contract execution. It was originally developed from Meta’s Diem and Novi projects and launched in October 2022. The network emphasizes scalability, safety, reliability, and upgradeability while adopting a modular transaction processing approach to optimize performance.
+
+Key Technological Components
+Consensus: AptosBFTv4
+* Delegated-Proof-of-Stake (DPoS) model with performance-based staking rewards.
+* AptosBFTv4 is based on Jolteon, an improvement over HotStuff, reducing consensus latency by 50% via pBFT-style quadratic view changes.
+* Leader selection considers both staking amount and validator performance to mitigate inefficiencies caused by underperforming leaders.
+Transaction Processing: Modular Architecture
+Aptos breaks down transaction processing into five concurrent stages:
+1. Transaction Dissemination – Transactions are batched and broadcasted.
+2. Block Metadata Ordering – Transactions are grouped into blocks and ordered.
+3. Parallel Execution – Transactions are executed in parallel via Block-STM.
+4. Batch Storage – Data is partitioned for more efficient access.
+5. Ledger Certification – Validator signatures certify the final state.
+This approach allows frequent protocol upgrades with minimal disruption.
+Mempool Optimization: Quorum Store
+* Quorum Store (based on Narwhal protocol) separates data dissemination from consensus, reducing transaction duplication and bandwidth inefficiencies.
+* Transactions now flow from mempool → Quorum Store → consensus, reducing leader workload and improving network throughput.
+* Quorum Store tripled end-to-end TPS and is a stepping stone toward DAG-based consensus.
+Execution: Block-STM Parallel Processing
+* Aptos uses Block-STM, a parallel execution engine inspired by Software Transactional Memory (STM).
+* Unlike Solana and Sui, Block-STM does not require upfront dependency declarations.
+* Optimistic concurrency control (OCC) minimizes transaction aborts, further improving TPS scalability.
+* In testing, Block-STM achieved 170,000 TPS with 32 threads.
+Storage: Efficient Merkle Tree Structure
+* Jellyfish Merkle Tree (on-disk) + Sparse Merkle Tree (in-memory) for fast updates.
+* Transactions and state changes are stored as individually provable cryptographic data (instead of relying on full block history).
+* Aptos Labs is exploring storage sharding to further scale its storage system.
+
+Move Programming Language
+* Move is a bytecode language inspired by Rust, optimized for security and performance.
+* Smart contracts (Modules) in Move:
+    * Enforce data abstraction (restrict external access).
+    * Use first-class assets (prevent token duplication/loss).
+    * Prevent re-entrancy attacks by eliminating unsafe dynamic dispatch (a common EVM vulnerability).
+* Move includes:
+    * Bytecode Verifier – Ensures contract safety before execution.
+    * Move Prover – Enables formal verification of smart contract correctness.
+
+Adoption and Ecosystem Growth
+* Since July 2023, Aptos has averaged 475,000 daily transactions and 72,000 daily active addresses.
+* The ecosystem features on-chain order books, perpetual DEXs, and social media platforms.
+* Mainnet-like testing achieved 30,000 TPS and over 2 billion transactions in a day, aiming for 1M+ TPS in the future.
+Strategic Growth & Partnerships
+* Aptos has raised $400M from investors.
+* Major partnerships include Microsoft, Alibaba Cloud, NPIXEL, Lotte Group, Coinbase Pay, and more.
+* Focused on APAC region expansion.
+Future Roadmap
+* Transitioning to DAG-based consensus for further scalability and decentralization.
+* Exploring storage sharding to enhance data scalability.
+
+Conclusion
+Aptos is one of the most advanced integrated Layer-1 blockchains, balancing low latency, high throughput, and frequent upgrades. Its novel execution, consensus, and mempool optimizations set it apart, and its Move-based security model reduces vulnerabilities present in EVM-based chains. With continued developer adoption and infrastructure upgrades, Aptos aims to compete at the highest levels of blockchain scalability.
