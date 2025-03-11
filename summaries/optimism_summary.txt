@@ -1,0 +1,96 @@
+### The OP Stack: Powering Optimism
+
+The **OP Stack** is a standardized, open-source development stack maintained by the **Optimism Collective**. It forms the backbone of Optimism and is designed as a **public good** for the Ethereum and Optimism ecosystems.
+
+#### What is the OP Stack?
+The OP Stack consists of multiple software components that enable **L2 blockchain creation** and ensure seamless interoperability within the **Superchain**. By coordinating on shared standards, developers avoid redundant work and benefit from a **high-quality, fully open-source** system.
+
+#### Key Features:
+- **Simplifies L2 blockchain deployment**
+- **Supports Superchain interoperability**
+- **Modular and evolving**
+- **Extends beyond L2 infrastructure** (e.g., block explorers, governance tools)
+
+As Optimism evolves, so will the OP Stack, adapting to new requirements and advancements.
+
+---
+
+### **Current State: Optimism Bedrock**
+The **Bedrock release** of the OP Stack provides production-quality tools for launching **Optimistic Rollups**. It lays the groundwork for **Superchain compatibility**, allowing new L2 chains to integrate seamlessly.
+
+Developers can modify components to experiment with novel L2 systems, but note that **unsupported modifications may break compatibility with the Superchain**.
+
+---
+
+### **OP Stack Architecture**
+The OP Stack is structured in layers:
+
+1. **Data Availability Layer** – Defines where raw inputs to OP Stack chains are published.
+   - *Ethereum DA:* Most widely used module, deriving data from Ethereum blockchain.
+
+2. **Sequencing Layer** – Collects and publishes user transactions.
+   - *Single Sequencer:* Default model, a single entity sequences transactions.
+   - *Multiple Sequencers:* Future modular option allowing different sequencing mechanisms.
+
+3. **Derivation Layer** – Processes raw data for execution.
+   - *Rollup Module:* Parses Ethereum block data for OP Stack chains.
+   - *Indexer Module:* Derives data from smart contract interactions.
+
+4. **Execution Layer** – Defines how state transitions occur.
+   - *EVM Module:* Uses Ethereum’s state model with minor L2 modifications.
+
+5. **Settlement Layer** – Establishes an OP Stack chain’s state on external blockchains.
+   - *Attestation-based Fault Proofs:* Uses optimistic validation.
+   - *Validity Proof Settlement:* Provides instant verification via cryptographic proofs.
+
+6. **Governance Layer** – Manages system upgrades and configuration.
+   - *MultiSig Contracts:* Used for contract upgrades.
+   - *Governance Tokens:* Enable decentralized decision-making.
+
+---
+
+### **The Superchain Vision**
+The **Superchain** is a network of OP Chains (L2s) that share security, governance, and a communication layer, **all built on the OP Stack**. The goal is to create **scalable, decentralized compute** for the world.
+
+#### Why is the Superchain Needed?
+Traditional blockchain architectures struggle with scalability:
+- Most web applications cannot run on-chain due to **high costs & throughput limits**.
+- **Multi-chain models introduce fragmented security & validation costs**.
+
+The **Superchain solves this** by treating OP Chains as **interchangeable compute resources**, allowing developers to **build applications without systemic risks**.
+
+---
+
+### **Superchain Roadmap**
+The **post-Bedrock era** will introduce:
+1. **Shared L1 Blockchain** – A unified source of truth for all OP Chains.
+2. **Shared Bridge** – Ensures **secure & standardized** asset transfers.
+3. **Cheap OP Chain Deployments** – Reducing L2 launch costs.
+4. **Modular Sequencing** – Allows OP Chains to configure their own sequencers.
+5. **Unified Upgrade Path** – A decentralized security council governs updates.
+
+---
+
+### **Enhancements Beyond Bedrock**
+1. **Multi-Proof Security** – Replaces trusted chain attestors with **permissionless proofs**.
+2. **Low-Latency L2-to-L2 Messaging** – Reduces cross-chain transaction times.
+3. **Synchronous Cross-Chain Transactions** – Enables **atomic transactions** like flash loans.
+4. **Alternative Data Availability (Alt-DA)** – Reduces reliance on Ethereum DA for **scalability**.
+5. **Multi-Chain App Frameworks** – Streamlines **cross-chain app deployment**.
+
+---
+
+### **Superchain Interoperability**
+The **Superchain Interop Protocol** ensures that OP Chains **communicate seamlessly** while maintaining security. 
+
+- **OP Supervisor** – A database tracking cross-chain transactions.
+- **Shared Safety Model** – Prevents reorgs & ensures trust between OP Chains.
+- **Interop Clusters** – Defines **which chains can send & receive messages**.
+
+The **Superchain interop cluster** will create a fully connected **mesh network**, ensuring **high interoperability** across all OP Chains.
+
+---
+
+### **The Future of the OP Stack**
+The OP Stack is **Ethereum’s next frontier**, paving the way for **scalable, trustless blockchain applications**. With a clear roadmap and **ongoing innovation**, the **Superchain vision** will redefine on-chain computation, unlocking new possibilities for developers and users alike.
+
