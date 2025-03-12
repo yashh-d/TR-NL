@@ -57,6 +57,13 @@ BULLET_POINT_EXAMPLES = {
     "Community": "bullet_point_examples/community_examples.txt",
 }
 
+# Tweet example files
+TWEET_EXAMPLES = {
+    "Short": "tweet_examples/short_tweets.txt",
+    "Medium": "tweet_examples/medium_tweets.txt",
+    "Long": "tweet_examples/long_tweets.txt",
+}
+
 # Default folder for style references
 DEFAULT_STYLE_FOLDER = "style_references/default"
 
@@ -216,6 +223,22 @@ community_bullet_point_prompt = ChatPromptTemplate.from_messages([
     )
 ])
 
+# (J) NEW TWEET GENERATION PROMPT
+tweet_generation_prompt = ChatPromptTemplate.from_messages([
+    (
+        "system",
+        "Social Media Writer: Create web3 tweets that are concise, informative, and match example style. Highlight key developments, use appropriate hashtags and mentions, and maintain neutral yet engaging tone. Focus on facts over hype."
+    ),
+    (
+        "human",
+        "Context/Newsletter Content:\n{newsletter_content}\n\n"
+        "Tweet Format: {tweet_format}\n\n"
+        "Example Tweets (carefully emulate this style):\n{tweet_examples}\n\n"
+        "Client Name: {client_name}\n\n"
+        "Please generate a {tweet_format} tweet that summarizes the key information from the newsletter content in a style similar to the examples. Include appropriate @ mentions of the client and relevant hashtags."
+    )
+])
+
 ################################
 # 5. CREATE LLM CHAINS
 ################################
@@ -230,10 +253,25 @@ chain_style_edit = LLMChain(llm=anthropic_llm, prompt=style_edit_prompt)
 chain_ecosystem_bullet_points = LLMChain(llm=anthropic_llm, prompt=ecosystem_bullet_point_prompt)
 chain_community_bullet_points = LLMChain(llm=anthropic_llm, prompt=community_bullet_point_prompt)
 
+# New chain for tweet generation
+chain_tweet_generation = LLMChain(llm=anthropic_llm, prompt=tweet_generation_prompt)
+
 # Function to load bullet point examples
 def load_bullet_point_examples(bullet_point_type):
     # Load from global example files
     file_path = BULLET_POINT_EXAMPLES[bullet_point_type]
+    try:
+        with open(file_path, "r") as f:
+            return f.read()
+    except FileNotFoundError:
+        return ""
+
+# Function to load tweet examples
+def load_tweet_examples(tweet_format):
+    file_path = TWEET_EXAMPLES.get(tweet_format)
+    if not file_path:
+        return ""
+    
     try:
         with open(file_path, "r") as f:
             return f.read()
@@ -255,8 +293,8 @@ st.markdown(hide_footer_style, unsafe_allow_html=True)
 
 st.title("Token Relations 📊 Newsletter")
 
-# Create tabs for Newsletter Generator and Bullet Point Generator
-newsletter_tab, bullet_points_tab = st.tabs(["Newsletter Generator", "Bullet Point Generator"])
+# Create tabs for Newsletter Generator, Bullet Point Generator, and Tweet Generator
+newsletter_tab, bullet_points_tab, tweet_tab = st.tabs(["Newsletter Generator", "Bullet Point Generator", "Tweet Generator"])
 
 with newsletter_tab:
     st.markdown(
@@ -321,6 +359,8 @@ with newsletter_tab:
         st.session_state.step1_completed = False
     if 'step2_started' not in st.session_state:
         st.session_state.step2_started = False
+    if 'final_newsletter' not in st.session_state:
+        st.session_state.final_newsletter = ""
         
     # Button: Extract Key Points (Step 1)
     if st.button("Step 1: Extract Key Points + Structure for Newsletter", key="extract_key_points") and not st.session_state.step1_completed:
@@ -404,6 +444,9 @@ with newsletter_tab:
                 )
             st.markdown("### Style Edited Newsletter")
             st.write(newsletter_style_edited)
+            
+            # Store the final newsletter in session state for use in Tweet generator
+            st.session_state.final_newsletter = newsletter_style_edited
 
         else:
             st.error("Please select a Style Reference and enter a Topic.")
@@ -414,6 +457,7 @@ with newsletter_tab:
             st.session_state.edited_key_points = ""
             st.session_state.step1_completed = False
             st.session_state.step2_started = False
+            st.session_state.final_newsletter = ""
             st.experimental_rerun()
 
 with bullet_points_tab:
@@ -489,5 +533,64 @@ with bullet_points_tab:
                     st.success("Community bullet points copied to clipboard!")
             else:
                 st.error("Please fill in the Community Context.")
+
+# New tab for Tweet Generator
+with tweet_tab:
+    st.title("Tweet Generator")
+    st.markdown("Generate tweets based on newsletter content or custom context information.")
+    
+    # Client selection for tweet
+    selected_tweet_client = st.selectbox("Select a Client (Tweet)", list(CLIENT_FILES.keys()), key="tweet_client")
+    
+    # Tweet format selection
+    tweet_format = st.selectbox("Select Tweet Format", ["Short", "Medium", "Long"], key="tweet_format")
+    
+    # Load tweet examples
+    tweet_examples = load_tweet_examples(tweet_format)
+    
+    # Display and allow editing of tweet examples
+    tweet_examples_edited = st.text_area(
+        f"{tweet_format} Tweet Examples", 
+        value=tweet_examples,
+        height=200
+    )
+    
+    # Option to use generated newsletter or custom input
+    use_newsletter = st.checkbox("Use Generated Newsletter Content", value=True)
+    
+    newsletter_content = ""
+    if use_newsletter:
+        if st.session_state.final_newsletter:
+            newsletter_content = st.session_state.final_newsletter
+            st.success("Using the generated newsletter content")
+        else:
+            st.warning("No newsletter has been generated yet. Please generate a newsletter first or uncheck to enter custom content.")
+    
+    # Custom content input if not using newsletter
+    if not use_newsletter or not newsletter_content:
+        newsletter_content = st.text_area("Enter Custom Content for Tweet", height=200)
+    
+    # Generate tweet button
+    if st.button("Generate Tweet", key="gen_tweet"):
+        if newsletter_content and selected_tweet_client:
+            with st.spinner(f"Generating {tweet_format} tweet..."):
+                generated_tweet = chain_tweet_generation.run(
+                    newsletter_content=newsletter_content,
+                    tweet_format=tweet_format,
+                    tweet_examples=tweet_examples_edited,
+                    client_name=selected_tweet_client
+                )
+            st.markdown("### Generated Tweet")
+            st.write(generated_tweet)
+            
+            # Show character count
+            char_count = len(generated_tweet)
+            st.info(f"Character count: {char_count}/280")
+            
+            # Copy button
+            if st.button("Copy Tweet to Clipboard", key="copy_tweet"):
+                st.success("Tweet copied to clipboard!")
+        else:
+            st.error("Please provide content and select a client for the tweet.")
 
 # No instructions at the bottom
