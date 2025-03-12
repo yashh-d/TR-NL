@@ -1,4 +1,59 @@
-import os
+# Function to select the appropriate tweet prompt based on length
+def get_tweet_prompt(length):
+    if length == "Short":
+        return short_tweet_prompt
+    elif length == "Medium":
+        return medium_tweet_prompt
+    else:  # Long
+        return long_tweet_prompt
+
+# Tweet generation chain - dynamically selects the appropriate prompt
+def generate_tweet(content, examples, length):
+    prompt = get_tweet_prompt(length)
+    chain = LLMChain(llm=anthropic_llm, prompt=prompt)
+    return chain.run(
+        newsletter_content=content,
+        tweet_examples=examples
+    )# Medium Tweet Generation Prompt
+medium_tweet_prompt = ChatPromptTemplate.from_messages([
+    (
+        "system",
+        "Generate a medium-length promotional tweet for web3 newsletter content. Follow these guidelines:\n"
+        "- Keep it between 140-200 characters\n"
+        "- Start with the main project/company name, preferably with their Twitter handle\n"
+        "- Highlight 2-3 key points from the newsletter\n"
+        "- Balance technical details with accessible language\n"
+        "- Include a call-to-action\n"
+        "- Use a professional, informative tone"
+    ),
+    (
+        "human",
+        "Newsletter Content:\n{newsletter_content}\n\n"
+        "Example Tweets (match this style):\n{tweet_examples}\n\n"
+        "Generate a medium-length promotional tweet that highlights the most important information from the newsletter."
+    )
+])
+
+# Long Tweet Generation Prompt
+long_tweet_prompt = ChatPromptTemplate.from_messages([
+    (
+        "system",
+        "Generate a comprehensive tweet for web3 newsletter content. Follow these guidelines:\n"
+        "- Use up to 280 characters (Twitter's maximum)\n"
+        "- Start with the main project/company name, preferably with their Twitter handle\n"
+        "- Cover 3-4 key points from the newsletter\n"
+        "- Include specific metrics, features, or technical details\n"
+        "- Structure with paragraph breaks for readability\n"
+        "- End with a clear call-to-action\n"
+        "- Maintain a professional, informative tone"
+    ),
+    (
+        "human",
+        "Newsletter Content:\n{newsletter_content}\n\n"
+        "Example Tweets (match this style):\n{tweet_examples}\n\n"
+        "Generate a comprehensive promotional tweet that highlights the most important information from the newsletter."
+    )
+])import os
 import streamlit as st
 from typing import Optional
 
