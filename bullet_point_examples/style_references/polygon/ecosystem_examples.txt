@@ -1,0 +1,21 @@
+- Watch Polygon Labs’ DevRel Brian Seong demo of Agglayer's unified bridge
+
+- Tune in to episode 2 of the Agglayer Educational Series to learn about zkVMs on March 20
+
+- Lumia Chain upgraded to Fork ID 12 on mainnet for security and performance
+
+- Check out this presentation on Arcana Chain Abstraction, built using the Polygon CDK
+
+- Explore this diagram of to learn how Agglayer addresses fragmentation with Plonky3
+
+- Brickken expanded to Polygon PoS to deploy its tokenization technology
+
+- Polygon PoS ranks as the third largest blockchain in active onchain addresses for USDC and USDT
+
+- Polygon also ranks top three for average monthly unique stablecoin addresses
+
+- Missed ETHDenver? Check out these presentations
+
+    - Dive into PoS, CDK and Agglayer with Polygon Labs’ Victor Estiva
+
+    - Learn about zk proofs with Polygon Hermez zkEVM Tech Lead Jordi Baylina
