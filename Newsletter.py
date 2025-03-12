@@ -340,7 +340,7 @@ with newsletter_tab:
     )
 
     # --- Client selection & loading client documentation ---
-    selected_client = st.selectbox("Select a Client (Newsletter)", list(CLIENT_FILES.keys()), key="newsletter_client")
+    selected_client = st.selectbox("Select a Client", list(CLIENT_FILES.keys()), key="newsletter_client")
     long_term_doc = ""
     if selected_client:
         try:
