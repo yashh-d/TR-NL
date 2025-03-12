@@ -545,15 +545,8 @@ with tweet_tab:
     # Tweet format selection
     tweet_format = st.selectbox("Select Tweet Format", ["Short", "Medium", "Long"], key="tweet_format")
     
-    # Load tweet examples
+    # Load tweet examples (backend only, not shown to user)
     tweet_examples = load_tweet_examples(tweet_format)
-    
-    # Display and allow editing of tweet examples
-    tweet_examples_edited = st.text_area(
-        f"{tweet_format} Tweet Examples", 
-        value=tweet_examples,
-        height=200
-    )
     
     # Option to use generated newsletter or custom input
     use_newsletter = st.checkbox("Use Generated Newsletter Content", value=True)
@@ -577,7 +570,7 @@ with tweet_tab:
                 generated_tweet = chain_tweet_generation.run(
                     newsletter_content=newsletter_content,
                     tweet_format=tweet_format,
-                    tweet_examples=tweet_examples_edited,
+                    tweet_examples=tweet_examples,
                     client_name=selected_tweet_client
                 )
             st.markdown("### Generated Tweet")
@@ -592,5 +585,3 @@ with tweet_tab:
                 st.success("Tweet copied to clipboard!")
         else:
             st.error("Please provide content and select a client for the tweet.")
-
-# No instructions at the bottom
