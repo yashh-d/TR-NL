@@ -64,6 +64,9 @@ TWEET_EXAMPLES = {
     "Long": "tweet_examples/long_tweets.txt",
 }
 
+# Title examples file
+TITLE_EXAMPLES_FILE = "title_examples/titles.txt"
+
 # Default folder for style references
 DEFAULT_STYLE_FOLDER = "style_references/default"
 
@@ -239,6 +242,21 @@ tweet_generation_prompt = ChatPromptTemplate.from_messages([
     )
 ])
 
+# (K) NEW TITLE GENERATION PROMPT
+title_generation_prompt = ChatPromptTemplate.from_messages([
+    (
+        "system",
+        "Newsletter Title Writer: Create concise, engaging titles for web3 newsletters that match example style. Highlight key developments while maintaining neutral yet engaging tone. Focus on clarity and accuracy."
+    ),
+    (
+        "human",
+        "Newsletter Content:\n{newsletter_content}\n\n"
+        "Example Titles (carefully emulate this style):\n{title_examples}\n\n"
+        "Client Name: {client_name}\n\n"
+        "Please generate a title for this newsletter that captures the key information and matches the style of the examples."
+    )
+])
+
 ################################
 # 5. CREATE LLM CHAINS
 ################################
@@ -255,6 +273,9 @@ chain_community_bullet_points = LLMChain(llm=anthropic_llm, prompt=community_bul
 
 # New chain for tweet generation
 chain_tweet_generation = LLMChain(llm=anthropic_llm, prompt=tweet_generation_prompt)
+
+# New chain for title generation
+chain_title_generation = LLMChain(llm=anthropic_llm, prompt=title_generation_prompt)
 
 # Function to load bullet point examples
 def load_bullet_point_examples(bullet_point_type):
@@ -274,6 +295,14 @@ def load_tweet_examples(tweet_format):
     
     try:
         with open(file_path, "r") as f:
+            return f.read()
+    except FileNotFoundError:
+        return ""
+
+# Function to load title examples
+def load_title_examples():
+    try:
+        with open(TITLE_EXAMPLES_FILE, "r") as f:
             return f.read()
     except FileNotFoundError:
         return ""
@@ -361,6 +390,8 @@ with newsletter_tab:
         st.session_state.step2_started = False
     if 'final_newsletter' not in st.session_state:
         st.session_state.final_newsletter = ""
+    if 'newsletter_title' not in st.session_state:
+        st.session_state.newsletter_title = ""
         
     # Button: Extract Key Points (Step 1)
     if st.button("Step 1: Extract Key Points + Structure for Newsletter", key="extract_key_points") and not st.session_state.step1_completed:
@@ -447,6 +478,23 @@ with newsletter_tab:
             
             # Store the final newsletter in session state for use in Tweet generator
             st.session_state.final_newsletter = newsletter_style_edited
+            
+            # Generate title based on the newsletter content
+            with st.spinner("Generating newsletter title..."):
+                # Load title examples
+                title_examples = load_title_examples()
+                
+                # Generate title
+                generated_title = chain_title_generation.run(
+                    newsletter_content=newsletter_style_edited,
+                    title_examples=title_examples,
+                    client_name=selected_client
+                )
+                
+                # Store and display the title
+                st.session_state.newsletter_title = generated_title
+                st.markdown("### Generated Newsletter Title")
+                st.write(generated_title)
 
         else:
             st.error("Please select a Style Reference and enter a Topic.")
@@ -458,6 +506,7 @@ with newsletter_tab:
             st.session_state.step1_completed = False
             st.session_state.step2_started = False
             st.session_state.final_newsletter = ""
+            st.session_state.newsletter_title = ""
             st.experimental_rerun()
 
 with bullet_points_tab:
@@ -585,3 +634,5 @@ with tweet_tab:
                 st.success("Tweet copied to clipboard!")
         else:
             st.error("Please provide content and select a client for the tweet.")
+
+# No instructions at the bottom
