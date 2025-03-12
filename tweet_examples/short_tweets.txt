@@ -1,0 +1,31 @@
+.@matchain's MatchID has surpassed 1.3M users
+It combines digital identities with embedded wallets on chains like BNB, Ethereum and Solana
+And accounts can be created and accessed through Twitter, Google, TikTok and more
+More details below
+
+After a 2-year journey, @Celo's transitioning from a L1 to an L2 at the end of this month
+The chain is also upgrading to reduce block time by 80% to 1 second, while preserving its history since 2020
+
+.@BTC_OS Grail bridge launched on testnet, connecting bitcoin to EVM based testnets
+For the first time, users can interact with BitcoinOS' scaling tech to move bitcoin across multiple chains, while still having custody
+More on the development below
+
+ICYMI: @UnchainedDistro partnered with @SeiNetwork for musician royalty payouts, powered by blockchain technology
+Traditionally, slow payouts can be an obstacle for a musician's growth
+Learn how this partnership looks to solve this
+
+.@Ripple is expanding institutional DeFi with regulatory compliant features on XRPL
+The upgrade includes:
+⁃ Permissioned DEX
+⁃ Domains
+⁃ Multi-Purpose Token
+⁃ Decentralized identity system
+Learn more below
+
+.@Agglayer plans to connect to 100 blockchains by end of 2025
+In the recent @0xPolygon Quarterly Webinar, @0xMarcB shared the vision for how they plan to accomplish this
+Read more
+
+Networks need to perform as well as centralized exchanges in order to create better awareness
+From a user experience perspective, if something can happen easier in web2, why would they use web3?
+Read how @Aptos looks to provide that answer
