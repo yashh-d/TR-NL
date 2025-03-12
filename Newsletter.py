@@ -1,59 +1,4 @@
-# Function to select the appropriate tweet prompt based on length
-def get_tweet_prompt(length):
-    if length == "Short":
-        return short_tweet_prompt
-    elif length == "Medium":
-        return medium_tweet_prompt
-    else:  # Long
-        return long_tweet_prompt
-
-# Tweet generation chain - dynamically selects the appropriate prompt
-def generate_tweet(content, examples, length):
-    prompt = get_tweet_prompt(length)
-    chain = LLMChain(llm=anthropic_llm, prompt=prompt)
-    return chain.run(
-        newsletter_content=content,
-        tweet_examples=examples
-    )# Medium Tweet Generation Prompt
-medium_tweet_prompt = ChatPromptTemplate.from_messages([
-    (
-        "system",
-        "Generate a medium-length promotional tweet for web3 newsletter content. Follow these guidelines:\n"
-        "- Keep it between 140-200 characters\n"
-        "- Start with the main project/company name, preferably with their Twitter handle\n"
-        "- Highlight 2-3 key points from the newsletter\n"
-        "- Balance technical details with accessible language\n"
-        "- Include a call-to-action\n"
-        "- Use a professional, informative tone"
-    ),
-    (
-        "human",
-        "Newsletter Content:\n{newsletter_content}\n\n"
-        "Example Tweets (match this style):\n{tweet_examples}\n\n"
-        "Generate a medium-length promotional tweet that highlights the most important information from the newsletter."
-    )
-])
-
-# Long Tweet Generation Prompt
-long_tweet_prompt = ChatPromptTemplate.from_messages([
-    (
-        "system",
-        "Generate a comprehensive tweet for web3 newsletter content. Follow these guidelines:\n"
-        "- Use up to 280 characters (Twitter's maximum)\n"
-        "- Start with the main project/company name, preferably with their Twitter handle\n"
-        "- Cover 3-4 key points from the newsletter\n"
-        "- Include specific metrics, features, or technical details\n"
-        "- Structure with paragraph breaks for readability\n"
-        "- End with a clear call-to-action\n"
-        "- Maintain a professional, informative tone"
-    ),
-    (
-        "human",
-        "Newsletter Content:\n{newsletter_content}\n\n"
-        "Example Tweets (match this style):\n{tweet_examples}\n\n"
-        "Generate a comprehensive promotional tweet that highlights the most important information from the newsletter."
-    )
-])import os
+import os
 import streamlit as st
 from typing import Optional
 
@@ -110,13 +55,6 @@ STYLE_FILE_NAMES = {
 BULLET_POINT_EXAMPLES = {
     "Ecosystem": "bullet_point_examples/ecosystem_examples.txt",
     "Community": "bullet_point_examples/community_examples.txt",
-}
-
-# Tweet example files
-TWEET_EXAMPLES = {
-    "Short": "tweet_examples/short_tweets.txt",
-    "Medium": "tweet_examples/medium_tweets.txt",
-    "Long": "tweet_examples/long_tweets.txt",
 }
 
 # Default folder for style references
@@ -278,29 +216,6 @@ community_bullet_point_prompt = ChatPromptTemplate.from_messages([
     )
 ])
 
-# Short Tweet Generation Prompt
-short_tweet_prompt = ChatPromptTemplate.from_messages([
-    (
-        "system",
-        "Generate a concise, informative tweet for web3 newsletter content. Follow these guidelines:\n"
-        "- Keep it under 280 characters\n"
-        "- Start with the main project/company name, often with their Twitter handle (e.g., .@ProjectName)\n"
-        "- Focus on 1-2 key achievements, metrics, or updates\n"
-        "- Use short, factual statements with minimal adjectives\n"
-        "- Include specific numbers or metrics when available\n"
-        "- Structure as 2-4 short paragraphs (1-2 sentences each)\n"
-        "- Add a brief call-to-action at the end (e.g., 'More details below', 'Learn more', 'Read more')\n"
-        "- For partnerships, mention both partners with their Twitter handles\n"
-        "- Use bullet points sparingly and only when listing multiple features"
-    ),
-    (
-        "human",
-        "Newsletter Content:\n{newsletter_content}\n\n"
-        "Example Tweets (match this style):\n{tweet_examples}\n\n"
-        "Generate a short promotional tweet that highlights the most important information from the newsletter."
-    )
-])
-
 ################################
 # 5. CREATE LLM CHAINS
 ################################
@@ -315,22 +230,10 @@ chain_style_edit = LLMChain(llm=anthropic_llm, prompt=style_edit_prompt)
 chain_ecosystem_bullet_points = LLMChain(llm=anthropic_llm, prompt=ecosystem_bullet_point_prompt)
 chain_community_bullet_points = LLMChain(llm=anthropic_llm, prompt=community_bullet_point_prompt)
 
-# Tweet generation uses a dynamic function instead of a fixed chain
-
 # Function to load bullet point examples
 def load_bullet_point_examples(bullet_point_type):
     # Load from global example files
     file_path = BULLET_POINT_EXAMPLES[bullet_point_type]
-    try:
-        with open(file_path, "r") as f:
-            return f.read()
-    except FileNotFoundError:
-        return ""
-
-# Function to load tweet examples
-def load_tweet_examples(tweet_length):
-    # Load from tweet example files
-    file_path = TWEET_EXAMPLES[tweet_length]
     try:
         with open(file_path, "r") as f:
             return f.read()
@@ -366,7 +269,6 @@ with newsletter_tab:
         **Step 5:** Draft & Enhance 'The big picture' section. \n
         **Step 6:** Compare the generated newsletter's style against the example.\n
         **Step 7:** Apply style edits to the enhanced newsletter based on feedback.\n
-        **Step 8:** Generate promotional tweets for the newsletter.\n
         """
     )
 
