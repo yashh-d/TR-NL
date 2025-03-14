@@ -124,7 +124,7 @@ draft_what_happened_prompt = ChatPromptTemplate.from_messages([
 draft_why_matters_prompt = ChatPromptTemplate.from_messages([
     (
         "system",
-        "Newsletter Writer: Draft 'Why It Matters' (6-7 paragraphs) for web3 newsletter. Match example style. Explain significance, impact, implications. Concise, neutral."
+        "Newsletter Writer: Draft 'Why It Matters' (3-4 paragraphs) for web3 newsletter. Match example style. Explain significance, impact, implications. Concise, neutral."
     ),
     (
         "human",
@@ -138,7 +138,7 @@ draft_why_matters_prompt = ChatPromptTemplate.from_messages([
 combined_big_picture_prompt = ChatPromptTemplate.from_messages([
     (
         "system",
-        "Newsletter Editor & Writer:  Add to 'The Big Picture' (total 3 paragraphs) for web3 newsletter. Style, keeping it concise and neutral. Enhance it to add deeper insight, long-term vision, and ecosystem impact, informed by the client vision and based on documentation. Return the final enhanced 'The Big Picture' section."
+        "Newsletter Editor & Writer:  Add to 'The Big Picture' (total 2-3 paragraphs) for web3 newsletter. Style, keeping it concise and neutral. Enhance it to add deeper insight, long-term vision, and ecosystem impact, informed by the client vision and based on documentation. Return the final enhanced 'The Big Picture' section."
     ),
     (
         "human",
@@ -167,7 +167,7 @@ style_check_prompt = ChatPromptTemplate.from_messages([
 style_edit_prompt = ChatPromptTemplate.from_messages([
     (
         "system",
-        "Editor: Revise newsletter based on style feedback to match example. Focus on tone, structure, clarity. Output final newsletter."
+        "Editor: Revise newsletter based on style feedback to match example. Focus on tone, structure, conciseness, clarity. Output final newsletter."
     ),
     (
         "human",
