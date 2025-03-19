@@ -1,0 +1,52 @@
+# Avalanche Network: Core Mission and Features
+
+## Mission Statement
+Avalanche aims to provide a unified platform for creating, transferring, and trading digital assets through a secure, scalable, and decentralized infrastructure.
+
+## Basic Overview
+Avalanche is a Proof-of-Stake (PoS) smart contract platform launched in September 2020. It uses a novel consensus mechanism called "Avalanche consensus" and features a multichain architecture with three primary chains (P, X, and C chains), each serving distinct purposes within the ecosystem.
+
+## Key Features
+
+### Scalability
+- Designed to support high transaction throughput
+- Capable of handling a global network with millions of connected devices
+- Optimized for low latency operations
+
+### Security
+- Configurable security thresholds
+- Graceful degradation when facing attacks
+- Can maintain safety guarantees even when attack thresholds exceed 51%
+
+### Decentralization
+- No distinction between miners, developers, and users
+- Multiple client implementations
+- No centralized control mechanisms
+
+### Governance
+- Token holders ($AVAX) can participate in validation and governance
+- Democratic voting on key financial parameters
+- Community input on system evolution
+
+### Interoperability
+- Supports multiple blockchains/assets
+- Designed for easy porting of existing blockchains
+- Compatible with multiple scripting languages and virtual machines
+
+## Subnets
+Subnets are subsets of validators that can run their own virtual machines with custom rules. Benefits include:
+- Creating application-specific blockchains
+- Supporting both private (permissioned) and public (permissionless) deployments
+- Isolating high-traffic applications from congesting the main network
+- Enabling specialized properties for reliability, efficiency, and data sovereignty
+
+## Native Token
+The platform's native token is called $AVAX. It serves as:
+- A unit of account for exchange
+- A security mechanism for the network
+- A means of participation in governance
+
+## Technical Naming
+- The platform name is Avalanche
+- The consensus protocol family is called Snow*
+- Specific protocol instantiations are Avalanche, Snowman, and Frosty
