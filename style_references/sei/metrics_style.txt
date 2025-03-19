@@ -1,0 +1,7 @@
+💨 What’s happening: Sei hit a new high of 1.2 million weekly active addresses on Dec. 12, according to Artemis data.
+💨 Why it matters: Since the beginning of November, the network has generally been on an upward trend for weekly active addresses. Last month, Sei’s lowest point for weekly active addresses was 136,500. It’s up about 780% since then.
+Overall, this metric has been on an upward trend for Sei, with its biggest increase coming during the week of Nov. 21 to Nov. 28 where it grew by 567,000 addresses. This can point toward the notion that existing and new users are consistently using the network for onchain actions.
+Sei can be a notable landing place for developers who want to build decentralized applications because of its active user base. In addition, the network’s fast finality can be attractive for users who want fast execution times for their blockchain transactions.
+Sei network has a max theoretical transactions per second of 12,500 and time to finality of 350ms. This puts it as a leader amongst peers that provides users quick transaction speeds and execution time. 
+💨 The bigger picture: If the Sei network is able to consistently scale and reach new milestones, alongside retaining fast transaction times, it can usher in a healthy level of adoption from developers and users alike.
+As market data and recent trends show, Sei has maintained and gained market share as users interact with the network by consistently returning and adding liquidity to it.

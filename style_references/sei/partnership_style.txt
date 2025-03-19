@@ -1,0 +1,14 @@
+💨 What’s happening: Sei Network partnered with Alchemy to integrate its enterprise-grade developer tools on its blockchain. 
+
+💨 Why it matters: This partnership integrates Alchemy’s node infrastructure to Sei’s parallel execution model, so its developers can utilize the network’s computational power. In alignment with Sei's upcoming Giga upgrade to deliver 5 gigagas per second, Alchemy’s tools look to relieve technical constraints in order to create faster protocols like high-frequency trading platforms or real-time web3 games.
+
+Since Alchemy will be a Node API provider on the backend, this means developers can focus on application abilities and innovation, rather than having to worry about backend maintenance. For added context, a Node API provider aims to provide developers a reliable node infrastructure, reduced development time and EVM compatibility. In turn, this can make it easier to scale applications since apps will be able to process multiple transactions in parallel. 
+
+Alchemy is a widely used developer hub across the web3 ecosystem. It powers dApps infrastructure for clients like Meta, OpenSea and Dapper Labs - as well as supports L1 and L2s like Ethereum, Polygon, Solana and Arbitrum. 
+
+Developers often have to choose a specific area to focus on such as speed and decentralization, ease of development and scalability, or familiarity and innovation. However, this partnership could eliminate friction points so developers don’t have to choose, but instead be able to balance high performance, reliability and ease of use.
+
+💨 The bigger picture:  There are many reasons why a developer will choose an ecosystem to build on, such as the quality of the infrastructure and tooling available or the amount of liquidity or users on the network. 
+
+If Sei Network’s partnership with Alchemy can make the onboarding process easier by adding Ethereum tools that developers might already be familiar with, it can make it an attractive landing place for EVM-compatible dApps.
+

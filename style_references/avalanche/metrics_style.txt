@@ -1,0 +1,11 @@
+🔺What we’re watching: The stablecoin market cap on Avalanche has almost doubled year-to-date. 
+
+🔺Why it matters: At the beginning of the year, the stablecoin market cap on Avalanche was about $1.1 billion. Now, it's at $2.1 billion, according to DefiLlama data. That’s almost a 100% increase, showcasing the rise in popularity for stablecoins on Avalanche.
+
+For context, Avalanche supports Tether (USDT) and USDC, the two of the largest stablecoins by market cap, at $138.3 billion and $40.7 billion, respectively. Additionally, Agora launched its stablecoin to the network, contributing more than $26 million in market cap to the ecosystem.The network’s support of these stablecoins is important because it provides options for user’s who seek stablecoins as a safe haven.
+
+Last month, BlackRock deployed its digital liquidity fund BUIDL to the Avalanche network. This fund, which has nearly $526 million in total asset value, contributes about $32 million toward the overall Avalanche stablecoin market cap. In relation to the other networks BUIDL deployed to, Avalanche is the second most valuable in terms of value.  
+
+🔺The bigger picture: Stablecoins are continuing to gain market share and dominance as new use cases arise and the sector finds more product market fit. The increase in market cap can point toward the fact that users are turning to Avalanche as their network of choice for stablecoin usage.
+
+In a more broader sense, stablecoins play a critical role in decentralized finance and global payments. If Avalanche can continue on an upward trend for its stablecoin market cap, it can continue to be a noteworthy player for stablecoin usage.

@@ -1,0 +1,16 @@
+💨 What’s happening: Sei Network has achieved a new milestone of 5.4 billion “gigagas,” or gas used per second, over a month ahead of its anticipated schedule, according to data shared on X by Sei Labs Co-Founder Jay Jog.
+
+Image
+💨 Why it matters: Sei Labs’ 2025 roadmap, thwarted as its “Giga” upgrade, had a goal of 5 gigagas per second, or 5 billion gas used per second, by March 31.
+
+Gigagas is a term coined by Sei Labs that measures how much computational work a blockchain can handle every second, which can be reflective of a chain’s performance.
+
+The team was able to achieve this multi-billion gigagas goal on February 11, more than a month ahead of their goal. This feat can showcase Sei Labs’ ability to innovate and progress at a fast rate, something that is very favored from blockchain, or any project, teams.
+
+Also outlined in Jog’s post was Sei Network’s feat of 102,000 executor transactions per second (TPS.)
+
+Sei Labs hopes to achieve a TPS of 250,000 in 2025, which would be the highest TPS for an EVM chain. This is important to note because it means Sei is staying aligned to its goal of providing developers faster and higher performing apps, such as for payment or game purposes. This would all come about without hindering Sei’s 0.4-0.5 second time to finality, too, Jog said. Thus still bringing in fast settlement times even as the amount of transactions scale.
+
+💨 The bigger picture: A blockchains ability to maintain a high throughput is crucial for progression because it means it would be able to process a massive number of transactions quickly and efficiently, while keeping costs low. Without high throughput, it’s harder for blockchains to scale.
+
+For Sei’s case, its 5 gigagas feat is a step in the right direction, especially when taking into account the speed of the team’s progression. If Sei Labs can continue to progress its 2025 roadmap and increase the network’s TPS, it can become a key player in the development of payment solutions and web3 games.
