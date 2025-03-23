@@ -1,17 +1,27 @@
-🔺What we’re watching: Avant, a DeFi protocol powered by Avalanche, has launched its “stable-value token” avUSD and a staked version of it, savUSD.
+🔺What we’re watching: Avalanche’s startup incubator, Codebase, is launching it’s Season 3 to help a new cohort of founders build innovative web3 projects on its network. 
 
-🔺Why it matters: Stablecoins are one of the most easy to understand use cases in crypto. The total stablecoin value across the market is $212.35 billion, up 59% from the year-ago date, according to RWA.xyz data.
+Applications for Season 3 are open till March 1, 2024, apply here.
 
-For many blockchains, it's also a vital part of the ecosystem. Avant’s new tokens provide Avalanche users additional yield opportunities. As it stands, Avalanche’s stablecoin market cap is $1.84 billion, DeFiLlama data shows. So the appetite onchain is there. 
+🔺Why it matters: The program aims to provide support to builders in the cohort globally  by giving them exclusive experiences to create their innovative ideas on Avalanche and be supported by the Ava Labs team.
 
-Avant’s goal is to provide users an alternative way to hold their assets, while generating yield, and participating in DeFi with market-neutral strategies. 
+Although Codebase provides teams with $50,000 in funding, it also aims to provide these early-stage startups tools and resources to succeed. It also brings in guidance from Ava Labs coaches and industry leaders such as the Co-Founder of Benqi, Hansen Niu, the Head of Growth at Lens and Aave, Christina Beltramin, the Co-Founder of GoGoPool, Steven Gates and more.
 
-Through avUSD, investors can put funds in a yield-bearing onchain dollar that is similar to a high yield savings account. Users can mint the avUSD token using USDC and can also stake it for savUSD to earn risk-adjusted yields through the underlying diversified strategies. The yield is generated using delta-neutral techniques such as hedged carry trades, staking, and treasury management, the company said. These strategies are designed to work in both stable and volatile market conditions by reducing the effects of price changes in either direction on ones portfolio.
+The cohort is able to leverage the network's developer tools and performance capabilities to build real world applications of blockchain. By the end of the program, teams launch testnets with a product released on Avalanche. 
 
-Avant aims to remove the complexity for investors, so they don’t need to know in-depth DeFi tools and mechanisms to get yield.  Instead, users can delegate that to Avant through its staking and receive the risk-adjusted yields. 
+Taking a trip down the recent memory lane, Season 2 had three winners, that built innovative projects in a variety of categories, as detailed below: 
 
-🔺The bigger picture: While many stablecoins are mixed across centralized and decentralized exchanges and platforms, Avant plans to remain DeFi native by not integrating with CEXes.This decision could potentially direct more investors onchain, if onboarded properly. In turn, the overall ecosystem could grow on the retail and institutional investor front. As interest in onchain assets continues to grow into a multi-billion dollar market, the DeFi protocol has the capability to offer high yield opportunities that can expand adoption and assets onchain for Avalanche.
+The first place winner, Chiss Protocol helps people in countries with weak currencies by creating an onchain foreign exchange system with lower fees compared to SWIFT. 
 
-In the future, the protocol has plans to launch avBTC, avETH and avAVAX. These tokens would allow users to generate additional yields, relative to the underlying bitcoin, ether and Avalanche tokens, respectively. These derivative products have the ability to create further value for investors and the native assets, overall increasing liquidity and participation onchain. 
+AutoPen makes document signing easier in Argentina through smart contracts, which supports small businesses in the country. 
 
-Learn more about avUSD and savUSD in this discussion with Avant’s Founder, Rhett Shipp, and the Avalanche team 
+Disgo integrates web3 technology into restaurants with a new loyalty system that lets customers share rewards with friends. 
+
+These projects bring new users and use cases to Avalanche and can attract more builders and users to Avalanche, creating a stronger network effect.
+
+While Codebase isn’t limited to a specific type of project, it wants to tap into “existing industry opportunities” and work with founders who are“ dedicated to expanding blockchain use through real-world applications, asset tokenization, and web3-native solutions,” according to its website.
+
+🔺The bigger picture:  Avalanche actively supports builders through a number of programs and initiatives. The network has a commitment to innovation with this incubator, alongside other fundraising opportunities and activations for builders. Recently, Avalanche’s infraBUIDL(AI) Program announced a partnership with Aethir’s $100M ecosystem fund as well as the Quadratic Funding Round with Gitcoin for DeFi and AI projects. The support from the foundation, Ava Labs team and ecosystem helps builders focus on innovation and ultimately, grow the network.
+
+With the recent network upgrade of Avalanche9000, it has become easier to launch an Avalanche L1 with lower barrier to entry with about 99% reduction in costs to deploy. Validators can now pay monthly fees instead of needing to stake 2000 AVAX, or approximately $55,320. The different L1s also can participate in interchain messaging to interoperate with one another, unifying users and liquidity.
+
+These network changes, combined with Codebase's continued evolution and scale, show Avalanche's focus on helping developers succeed. Each new project and upgrade can make the network stronger. As more builders join and create useful products, Avalanche will continue to grow as a platform for practical blockchain solutions.
