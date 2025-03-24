@@ -1,10 +1,13 @@
 import os
 import streamlit as st
 from typing import Optional
+from datetime import datetime
+from supabase import create_client, Client  # Import Supabase client
+import json
 
 # ----------------------------------------------------------------------
 # Install Dependencies (via terminal/pip):
-#   pip install langchain anthropic streamlit
+#   pip install langchain anthropic streamlit supabase
 #   or adapt to your environment as needed.
 # ----------------------------------------------------------------------
 
@@ -308,7 +311,180 @@ def load_title_examples():
         return ""
 
 ################################
-# 6. STREAMLIT UI
+# 7. DATABASE SETUP FOR FINE-TUNING WITH SUPABASE
+################################
+
+# Update the Supabase configuration section to include the table name from environment variables
+
+# Supabase configuration
+SUPABASE_URL = os.getenv("SUPABASE_URL", "https://aatuvtaqtvfqeaaopfvq.supabase.co")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhdHV2dGFxdHZmcWVhYW9wZnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyMjYzOTAsImV4cCI6MjA1MjgwMjM5MH0.-uEtosE4q40N6Vuf-EQsO-JAIeQ0k0q3tLAvHrHGF34")
+SUPABASE_TABLE = os.getenv("SUPABASE_TABLE", "NL-Fine-Tuning")
+
+# Function to initialize Supabase client
+def initialize_supabase():
+    # Check if Supabase credentials are set
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        st.sidebar.warning("Supabase credentials not set. Data will not be saved.")
+        
+        # Allow setting credentials in the UI if not in environment
+        with st.sidebar.expander("Set Supabase Credentials"):
+            supabase_url = st.text_input("Supabase URL", type="password")
+            supabase_key = st.text_input("Supabase API Key", type="password")
+            
+            if st.button("Save Credentials"):
+                if supabase_url and supabase_key:
+                    # Store in session state (not persistent across app restarts)
+                    st.session_state.supabase_url = supabase_url
+                    st.session_state.supabase_key = supabase_key
+                    # Initialize the client with the new credentials
+                    try:
+                        st.session_state.supabase_client = create_client(supabase_url, supabase_key)
+                        st.success("Credentials saved and connected for this session!")
+                    except Exception as e:
+                        st.error(f"Failed to connect to Supabase: {str(e)}")
+                else:
+                    st.error("Please provide both URL and API key")
+    else:
+        # Store environment variables in session state and initialize client
+        st.session_state.supabase_url = SUPABASE_URL
+        st.session_state.supabase_key = SUPABASE_KEY
+        try:
+            st.session_state.supabase_client = create_client(SUPABASE_URL, SUPABASE_KEY)
+            st.sidebar.success("Connected to Supabase!")
+        except Exception as e:
+            st.sidebar.error(f"Failed to connect to Supabase: {str(e)}")
+
+# Function to save newsletter data to Supabase
+def save_to_supabase(client, topic, context, generated, final, style, quality_rating, feedback_notes):
+    # Get Supabase client from session state
+    supabase_client = st.session_state.get("supabase_client")
+    
+    if not supabase_client:
+        st.error("Supabase client not initialized. Cannot save data.")
+        return False
+    
+    # Prepare data for Supabase
+    data = {
+        "client": client,
+        "topic": topic,
+        "context_input": context,
+        "generated_newsletter": generated,
+        "final_newsletter": final,
+        "style_reference": style,
+        "quality_rating": quality_rating,
+        "feedback_notes": feedback_notes,
+        "created_at": datetime.now().isoformat()
+    }
+    
+    try:
+        # Insert data using the Supabase client
+        response = supabase_client.table(SUPABASE_TABLE).insert(data).execute()
+        
+        # Check if the insert was successful
+        if response.data:
+            return True
+        else:
+            st.error(f"Error saving to Supabase: {response.error}")
+            return False
+    except Exception as e:
+        st.error(f"Exception when saving to Supabase: {str(e)}")
+        return False
+
+# Function to load saved newsletters from Supabase
+def load_saved_newsletters():
+    # Get Supabase client from session state
+    supabase_client = st.session_state.get("supabase_client")
+    
+    if not supabase_client:
+        st.error("Supabase client not initialized. Cannot load data.")
+        return []
+    
+    try:
+        # Query data using the Supabase client
+        response = (
+            supabase_client
+            .table(SUPABASE_TABLE)
+            .select("id,client,topic,created_at")
+            .order("created_at", desc=True)
+            .limit(10)
+            .execute()
+        )
+        
+        # Return the data if successful
+        if response.data:
+            return response.data
+        else:
+            st.error(f"Error loading from Supabase: {response.error}")
+            return []
+    except Exception as e:
+        st.error(f"Exception when loading from Supabase: {str(e)}")
+        return []
+
+# Add a function to get a specific newsletter by ID
+def get_newsletter_by_id(newsletter_id):
+    supabase_client = st.session_state.get("supabase_client")
+    
+    if not supabase_client:
+        st.error("Supabase client not initialized. Cannot load data.")
+        return None
+    
+    try:
+        response = (
+            supabase_client
+            .table(SUPABASE_TABLE)
+            .select("*")
+            .eq("id", newsletter_id)
+            .execute()
+        )
+        
+        if response.data and len(response.data) > 0:
+            return response.data[0]
+        else:
+            st.error(f"Newsletter with ID {newsletter_id} not found.")
+            return None
+    except Exception as e:
+        st.error(f"Exception when loading newsletter: {str(e)}")
+        return None
+
+# Add a function to export newsletters for fine-tuning
+def export_newsletters_for_finetuning():
+    supabase_client = st.session_state.get("supabase_client")
+    
+    if not supabase_client:
+        st.error("Supabase client not initialized. Cannot export data.")
+        return None
+    
+    try:
+        response = (
+            supabase_client
+            .table(SUPABASE_TABLE)
+            .select("context_input,final_newsletter,quality_rating")
+            .gte("quality_rating", 7)  # Only export high-quality newsletters
+            .execute()
+        )
+        
+        if response.data:
+            # Format data for fine-tuning
+            finetuning_data = []
+            for item in response.data:
+                finetuning_data.append({
+                    "input": item["context_input"],
+                    "output": item["final_newsletter"]
+                })
+            return finetuning_data
+        else:
+            st.warning("No high-quality newsletters found for export.")
+            return None
+    except Exception as e:
+        st.error(f"Exception when exporting newsletters: {str(e)}")
+        return None
+
+# Initialize Supabase on app startup
+initialize_supabase()
+
+################################
+# 6. STREAMLIT UI (UPDATED)
 ################################
 # Hide the "Created by" footer
 hide_footer_style = """
@@ -322,8 +498,8 @@ st.markdown(hide_footer_style, unsafe_allow_html=True)
 
 st.title("Token Relations 📊 Newsletter")
 
-# Create tabs for Newsletter Generator, Bullet Point Generator, and Tweet Generator
-newsletter_tab, bullet_points_tab, tweet_tab = st.tabs(["Newsletter Generator", "Bullet Point Generator", "Tweet Generator"])
+# Create tabs for Newsletter Generator, Bullet Point Generator, Tweet Generator, and Edit & Save
+newsletter_tab, bullet_points_tab, tweet_tab, edit_save_tab = st.tabs(["Newsletter Generator", "Bullet Point Generator", "Tweet Generator", "Edit & Save"])
 
 with newsletter_tab:
     st.markdown(
@@ -634,5 +810,152 @@ with tweet_tab:
                 st.success("Tweet copied to clipboard!")
         else:
             st.error("Please provide content and select a client for the tweet.")
+
+# New tab for editing and saving the newsletter
+with edit_save_tab:
+    st.title("Edit & Save Newsletter")
+    st.markdown("Edit the generated newsletter and save the final version for fine-tuning.")
+    
+    # Check if we have a generated newsletter to edit
+    if st.session_state.final_newsletter:
+        # Display the title
+        if st.session_state.newsletter_title:
+            st.markdown(f"### Current Title: {st.session_state.newsletter_title}")
+            edited_title = st.text_input("Edit Title", value=st.session_state.newsletter_title)
+        else:
+            edited_title = st.text_input("Add Title")
+        
+        # Allow editing of the newsletter content
+        edited_newsletter = st.text_area(
+            "Edit Newsletter Content", 
+            value=st.session_state.final_newsletter,
+            height=500
+        )
+        
+        # Feedback on the generated newsletter
+        quality_rating = st.number_input(
+            "Rate the quality of the generated newsletter (1-10)",
+            min_value=1,
+            max_value=10,
+            value=7,
+            step=1
+        )
+        
+        feedback_notes = st.text_area(
+            "Additional feedback or notes on what was changed",
+            height=150
+        )
+        
+        # Save button
+        if st.button("Save Newsletter for Fine-tuning"):
+            if edited_newsletter:
+                # Get the current client, topic, and context
+                current_client = st.session_state.get("newsletter_client", "")
+                current_topic = topic if 'topic' in locals() else ""
+                current_context = context_text if 'context_text' in locals() else ""
+                current_style = selected_style if 'selected_style' in locals() else ""
+                
+                # Save to Supabase
+                save_success = save_to_supabase(
+                    client=current_client,
+                    topic=current_topic,
+                    context=current_context,
+                    generated=st.session_state.final_newsletter,
+                    final=edited_newsletter,
+                    style=current_style,
+                    quality_rating=quality_rating,
+                    feedback_notes=feedback_notes
+                )
+                
+                if save_success:
+                    st.success("Newsletter saved successfully for fine-tuning!")
+                    
+                    # Display summary of saved data
+                    st.markdown("### Saved Newsletter Data")
+                    st.markdown(f"**Client:** {current_client}")
+                    st.markdown(f"**Topic:** {current_topic}")
+                    st.markdown(f"**Style Reference:** {current_style}")
+                    st.markdown(f"**Quality Rating:** {quality_rating}/10")
+                    if feedback_notes:
+                        st.markdown(f"**Feedback Notes:** {feedback_notes}")
+                else:
+                    st.error("Failed to save newsletter data. Please try again.")
+            else:
+                st.error("Please provide newsletter content to save.")
+    else:
+        st.warning("No newsletter has been generated yet. Please generate a newsletter in the Newsletter Generator tab first.")
+        
+        # Option to view previously saved newsletters
+        st.markdown("### View Previously Saved Newsletters")
+        if st.button("Load Saved Newsletters"):
+            saved_newsletters = load_saved_newsletters()
+            
+            if saved_newsletters:
+                st.markdown("#### Recent Saved Newsletters")
+                for newsletter in saved_newsletters:
+                    st.markdown(f"**ID:** {newsletter['id']} | **Client:** {newsletter['client']} | **Topic:** {newsletter['topic']} | **Date:** {newsletter['created_at']}")
+            else:
+                st.info("No saved newsletters found in the database.")
+
+    # Add a section for viewing and exporting newsletters
+    st.markdown("---")
+    st.markdown("### Newsletter Management")
+
+    # Create two columns for different actions
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("#### View Specific Newsletter")
+        newsletter_id = st.number_input("Enter Newsletter ID", min_value=1, step=1)
+        
+        if st.button("View Newsletter"):
+            if newsletter_id:
+                newsletter_data = get_newsletter_by_id(newsletter_id)
+                
+                if newsletter_data:
+                    st.markdown(f"**Client:** {newsletter_data.get('client', 'N/A')}")
+                    st.markdown(f"**Topic:** {newsletter_data.get('topic', 'N/A')}")
+                    st.markdown(f"**Quality Rating:** {newsletter_data.get('quality_rating', 'N/A')}/10")
+                    
+                    # Show the original context
+                    with st.expander("Original Context"):
+                        st.text_area("Context", value=newsletter_data.get('context_input', ''), height=200, disabled=True)
+                    
+                    # Show the generated newsletter
+                    with st.expander("Generated Newsletter"):
+                        st.text_area("Generated", value=newsletter_data.get('generated_newsletter', ''), height=300, disabled=True)
+                    
+                    # Show the final newsletter
+                    with st.expander("Final Newsletter"):
+                        st.text_area("Final", value=newsletter_data.get('final_newsletter', ''), height=300, disabled=True)
+                    
+                    # Show feedback notes if any
+                    if newsletter_data.get('feedback_notes'):
+                        with st.expander("Feedback Notes"):
+                            st.write(newsletter_data.get('feedback_notes', ''))
+
+    with col2:
+        st.markdown("#### Export for Fine-tuning")
+        st.write("Export high-quality newsletters (rating ≥ 7) for model fine-tuning.")
+        
+        if st.button("Export Fine-tuning Data"):
+            finetuning_data = export_newsletters_for_finetuning()
+            
+            if finetuning_data:
+                # Convert to JSON
+                json_data = json.dumps(finetuning_data, indent=2)
+                
+                # Create a download button
+                st.download_button(
+                    label="Download JSON for Fine-tuning",
+                    data=json_data,
+                    file_name="newsletter_finetuning_data.json",
+                    mime="application/json"
+                )
+                
+                # Show a preview
+                st.markdown(f"**{len(finetuning_data)} newsletters** ready for fine-tuning")
+                with st.expander("Preview Fine-tuning Data"):
+                    st.json(finetuning_data[:2] if len(finetuning_data) > 2 else finetuning_data)
 
 # No instructions at the bottom
