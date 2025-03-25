@@ -77,18 +77,95 @@ DEFAULT_STYLE_FOLDER = "style_references/default"
 # 2. ANTHROPIC SETUP
 ###################
 from langchain_anthropic import ChatAnthropic
-if "ANTHROPIC_API_KEY" not in os.environ:
-    st.warning("Your Anthropic API key is not set in the environment. Please enter it below:")
-    api_key = st.text_input("Enter your Anthropic API key:", type="password")
-    if api_key:
-        os.environ["ANTHROPIC_API_KEY"] = api_key
 
-anthropic_llm = ChatAnthropic(
-    model="claude-3-7-sonnet-latest",  # Adjust model if needed
-    temperature=0,
-    timeout=None,
-    max_retries=2,
-)
+# Function to validate API key
+def validate_anthropic_api_key(api_key):
+    """Test if the provided Anthropic API key is valid"""
+    import requests
+    
+    headers = {
+        "x-api-key": api_key,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json"
+    }
+    
+    # Simple validation request
+    try:
+        # Just make a minimal request to check if the API key is valid
+        response = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers=headers,
+            json={
+                "model": "claude-3-sonnet-20240229",
+                "max_tokens": 10,
+                "messages": [{"role": "user", "content": "Hello"}]
+            },
+            timeout=5
+        )
+        
+        if response.status_code == 200:
+            return True, "API key is valid"
+        elif response.status_code == 401:
+            return False, "Invalid API key. Please check and try again."
+        else:
+            return False, f"API error: {response.status_code} - {response.text}"
+    except Exception as e:
+        return False, f"Error validating API key: {str(e)}"
+
+# Check for API key in secrets first, then environment or session state
+try:
+    api_key = st.secrets["anthropic"]["api_key"]
+    # If we get here, the key was found in secrets
+    os.environ["ANTHROPIC_API_KEY"] = api_key  # Set it in environment for libraries that look there
+except (KeyError, TypeError):
+    # If not in secrets, try environment or session state
+    api_key = os.environ.get("ANTHROPIC_API_KEY", st.session_state.get("ANTHROPIC_API_KEY", ""))
+    
+    # Only show the input form if no key is found anywhere
+    if not api_key:
+        st.warning("Your Anthropic API key is not set. Please enter it below:")
+        api_key_input = st.text_input("Enter your Anthropic API key:", type="password")
+        
+        if api_key_input and st.button("Validate and Save API Key"):
+            is_valid, message = validate_anthropic_api_key(api_key_input)
+            if is_valid:
+                st.session_state.ANTHROPIC_API_KEY = api_key_input
+                os.environ["ANTHROPIC_API_KEY"] = api_key_input
+                st.success("API key validated and saved for this session!")
+                st.experimental_rerun()
+            else:
+                st.error(message)
+        
+        # Show instructions for getting an API key
+        with st.expander("How to get an Anthropic API key"):
+            st.markdown("""
+            1. Go to [Anthropic Console](https://console.anthropic.com/)
+            2. Sign up or log in to your account
+            3. Navigate to the API Keys section
+            4. Create a new API key
+            5. Copy the key and paste it above
+            """)
+        
+        # Stop execution if no valid API key
+        st.stop()
+
+# Initialize the Anthropic client with the API key
+try:
+    anthropic_llm = ChatAnthropic(
+        api_key=api_key,
+        model="claude-3-7-sonnet-latest",
+        temperature=0,
+        timeout=None,
+        max_retries=2,
+    )
+    # Test the client with a simple query to verify it works
+    test_response = anthropic_llm.invoke("Test connection. Reply with 'Connected'.")
+    if "Connected" not in test_response.content:
+        st.sidebar.warning("API connection test failed. The API key might be invalid.")
+except Exception as e:
+    st.error(f"Error initializing Anthropic client: {str(e)}")
+    st.warning("Please check your API key and try again.")
+    st.stop()
 
 ##########################
 # 4. DEFINING PROMPTS
