@@ -593,7 +593,7 @@ with newsletter_tab:
         **Step 7:** Apply style edits to the enhanced newsletter based on feedback.\n
         """
     )
-
+    
     # --- Client selection & loading client documentation ---
     selected_client = st.selectbox("Select a Client", list(CLIENT_FILES.keys()), key="newsletter_client")
     long_term_doc = ""
@@ -633,17 +633,17 @@ with newsletter_tab:
     # --- Newsletter user inputs ---
     context_text = st.text_area("Context Information (Newsletter)", height=150)
     topic = st.text_area("Newsletter Topic", height=50)
-
-    # Add a more prominent additional prompting section
+    
+    # Add additional tailoring instructions right after context input
     st.markdown("### Additional Tailoring Instructions")
     st.markdown("Provide specific guidance on style, focus areas, or other aspects you want to emphasize in this newsletter.")
-
+    
     additional_instructions = st.text_area(
         "Custom Instructions",
         placeholder="Examples:\n- Focus more on technical aspects\n- Emphasize community growth metrics\n- Use more concrete examples\n- Keep a neutral but optimistic tone\n- Highlight potential impact on developers",
         height=100
     )
-
+    
     # More detailed options in an expander
     with st.expander("Advanced Tailoring Options"):
         # Specific focus areas with sliders
@@ -675,19 +675,19 @@ with newsletter_tab:
         
         # Option to include these preferences in the prompts
         include_preferences = st.checkbox("Include focus preferences in prompts", value=True)
-
+    
     # Combine all additional instructions
     combined_instructions = ""
-
+    
     if additional_instructions:
         combined_instructions += f"Additional Instructions:\n{additional_instructions}\n\n"
-
+    
     if 'include_preferences' in locals() and include_preferences and any(x != 5 for x in [technical_focus, business_focus, community_focus, future_focus]):
         combined_instructions += focus_preferences
-
+    
     if combined_instructions:
         st.success("Your tailoring instructions will be included in the generation process.")
-
+    
     # Initialize session state variables
     if 'key_points_output' not in st.session_state:
         st.session_state.key_points_output = ""
