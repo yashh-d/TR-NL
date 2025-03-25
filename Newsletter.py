@@ -197,6 +197,7 @@ draft_what_happened_prompt = ChatPromptTemplate.from_messages([
         "Key Points:\n{key_points}\n\n"
         "Newsletter Topic: {topic}\n\n"
         "Draft a 'What happened' section (1–2 sentences) in a style similar to this example:\n{newsletter_example}"
+        "{additional_instructions}"
     )
 ])
 
@@ -211,6 +212,7 @@ draft_why_matters_prompt = ChatPromptTemplate.from_messages([
         "Key Points:\n{key_points}\n\n"
         "Newsletter Topic: {topic}\n\n"
         "Draft the 'Why does it matter' section (6–7 small paragraphs) in a style similar to this example:\n{newsletter_example}"
+        "{additional_instructions}"
     )
 ])
 
@@ -223,6 +225,7 @@ combined_big_picture_prompt = ChatPromptTemplate.from_messages([
     (
         "human",
         "Key Points (for initial draft):\n{key_points}\n\nNewsletter Topic:\n{topic}\n\nNewsletter Example (for style reference):\n{newsletter_example}\n\nClient vision + docs (for enhancement):\n{long_term_doc}\n\n"
+        "{additional_instructions}"
     )
 ])
 
@@ -428,7 +431,6 @@ def initialize_supabase():
         st.session_state.supabase_key = SUPABASE_KEY
         try:
             st.session_state.supabase_client = create_client(SUPABASE_URL, SUPABASE_KEY)
-            st.sidebar.success("Connected to Supabase!")
         except Exception as e:
             st.sidebar.error(f"Failed to connect to Supabase: {str(e)}")
 
@@ -575,8 +577,8 @@ st.markdown(hide_footer_style, unsafe_allow_html=True)
 
 st.title("Token Relations 📊 Newsletter")
 
-# Create tabs for Newsletter Generator, Bullet Point Generator, Tweet Generator, and Edit & Save
-newsletter_tab, bullet_points_tab, tweet_tab, edit_save_tab = st.tabs(["Newsletter Generator", "Bullet Point Generator", "Tweet Generator", "Edit & Save"])
+# Create tabs for Newsletter Generator, Bullet Point Generator, Tweet Generator, Title Generator, and Edit & Save
+newsletter_tab, bullet_points_tab, tweet_tab, title_tab, edit_save_tab = st.tabs(["Newsletter Generator", "Bullet Point Generator", "Tweet Generator", "Title Generator", "Edit & Save"])
 
 with newsletter_tab:
     st.markdown(
@@ -630,7 +632,61 @@ with newsletter_tab:
 
     # --- Newsletter user inputs ---
     context_text = st.text_area("Context Information (Newsletter)", height=150)
-    topic = st.text_input("Newsletter Topic")
+    topic = st.text_area("Newsletter Topic", height=50)
+
+    # Add a more prominent additional prompting section
+    st.markdown("### Additional Tailoring Instructions")
+    st.markdown("Provide specific guidance on style, focus areas, or other aspects you want to emphasize in this newsletter.")
+
+    additional_instructions = st.text_area(
+        "Custom Instructions",
+        placeholder="Examples:\n- Focus more on technical aspects\n- Emphasize community growth metrics\n- Use more concrete examples\n- Keep a neutral but optimistic tone\n- Highlight potential impact on developers",
+        height=100
+    )
+
+    # More detailed options in an expander
+    with st.expander("Advanced Tailoring Options"):
+        # Specific focus areas with sliders
+        st.markdown("### Focus Area Weights")
+        st.markdown("Adjust these sliders to emphasize different aspects in the newsletter:")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            technical_focus = st.slider("Technical Details", 1, 10, 5, 
+                                       help="Higher values emphasize technical aspects and implementation details")
+            business_focus = st.slider("Business Impact", 1, 10, 5,
+                                      help="Higher values emphasize business implications and market effects")
+            
+        with col2:
+            community_focus = st.slider("Community Aspects", 1, 10, 5,
+                                       help="Higher values emphasize community engagement and adoption")
+            future_focus = st.slider("Future Implications", 1, 10, 5,
+                                    help="Higher values emphasize long-term vision and potential outcomes")
+        
+        # Combine the focus preferences into a structured format
+        focus_preferences = f"""
+        Focus Preferences:
+        - Technical Details: {technical_focus}/10
+        - Business Impact: {business_focus}/10
+        - Community Aspects: {community_focus}/10
+        - Future Implications: {future_focus}/10
+        """
+        
+        # Option to include these preferences in the prompts
+        include_preferences = st.checkbox("Include focus preferences in prompts", value=True)
+
+    # Combine all additional instructions
+    combined_instructions = ""
+
+    if additional_instructions:
+        combined_instructions += f"Additional Instructions:\n{additional_instructions}\n\n"
+
+    if 'include_preferences' in locals() and include_preferences and any(x != 5 for x in [technical_focus, business_focus, community_focus, future_focus]):
+        combined_instructions += focus_preferences
+
+    if combined_instructions:
+        st.success("Your tailoring instructions will be included in the generation process.")
 
     # Initialize session state variables
     if 'key_points_output' not in st.session_state:
@@ -650,9 +706,18 @@ with newsletter_tab:
     if st.button("Step 1: Extract Key Points + Structure for Newsletter", key="extract_key_points") and not st.session_state.step1_completed:
         if context_text:
             with st.spinner("Extracting key points..."):
-                st.session_state.key_points_output = chain_extract.run(context_text=context_text, long_term_doc=long_term_doc)
+                # Include additional instructions if provided
+                extraction_context = context_text
+                if 'combined_instructions' in locals() and combined_instructions:
+                    extraction_context = f"{context_text}\n\n===ADDITIONAL INSTRUCTIONS===\n{combined_instructions}"
+                
+                st.session_state.key_points_output = chain_extract.run(context_text=extraction_context, long_term_doc=long_term_doc)
                 st.session_state.edited_key_points = st.session_state.key_points_output
                 st.session_state.step1_completed = True
+                
+                # Store the additional instructions in session state for later steps
+                if 'combined_instructions' in locals():
+                    st.session_state.additional_instructions = combined_instructions
         else:
             st.error("Please enter Context Information.")
 
@@ -673,11 +738,20 @@ with newsletter_tab:
         if newsletter_example and topic:
             # Step 2a
             with st.spinner("Drafting 'What happened'..."):
-                what_happened_draft = chain_what_happened.run(
-                    newsletter_example=newsletter_example,
-                    key_points=st.session_state.edited_key_points,
-                    topic=topic
-                )
+                # Get additional instructions from session state if available
+                additional_instr = st.session_state.get("additional_instructions", "")
+                
+                # Add to the run parameters if instructions exist
+                run_params = {
+                    "newsletter_example": newsletter_example,
+                    "key_points": st.session_state.edited_key_points,
+                    "topic": topic
+                }
+                
+                if additional_instr:
+                    run_params["additional_instructions"] = additional_instr
+                
+                what_happened_draft = chain_what_happened.run(**run_params)
             st.markdown("### Draft - What Happened")
             st.write(what_happened_draft)
 
@@ -697,7 +771,8 @@ with newsletter_tab:
                     newsletter_example=newsletter_example,
                     key_points=st.session_state.edited_key_points,
                     topic=topic,
-                    long_term_doc=long_term_doc  # Pass long_term_doc for combined chain
+                    long_term_doc=long_term_doc,  # Pass long_term_doc for combined chain
+                    additional_instructions=combined_instructions
                 )
             st.markdown("### Draft + Enhanced - The Big Picture")
             st.write(big_picture_enhanced)
@@ -888,6 +963,117 @@ with tweet_tab:
         else:
             st.error("Please provide content and select a client for the tweet.")
 
+# New tab for Title Generator
+with title_tab:
+    st.title("Title Generator")
+    st.markdown("Generate a title for your newsletter based on its content.")
+    
+    # Client selection for title
+    selected_title_client = st.selectbox("Select a Client (Title)", list(CLIENT_FILES.keys()), key="title_client")
+    
+    # Option to use generated newsletter or custom input
+    use_newsletter_for_title = st.checkbox("Use Generated Newsletter Content", value=True, key="use_newsletter_title")
+    
+    title_content = ""
+    if use_newsletter_for_title:
+        if st.session_state.final_newsletter:
+            title_content = st.session_state.final_newsletter
+            st.success("Using the generated newsletter content")
+        else:
+            st.warning("No newsletter has been generated yet. Please generate a newsletter first or uncheck to enter custom content.")
+    
+    # Custom content input if not using newsletter
+    if not use_newsletter_for_title or not title_content:
+        title_content = st.text_area("Enter Newsletter Content for Title Generation", height=300)
+    
+    # Load title examples
+    title_examples = load_title_examples()
+    
+    # Option to view and edit title examples
+    with st.expander("View/Edit Title Examples"):
+        edited_title_examples = st.text_area(
+            "Title Examples (for reference)",
+            value=title_examples,
+            height=200
+        )
+        if edited_title_examples != title_examples and st.button("Update Title Examples"):
+            title_examples = edited_title_examples
+    
+    # Generate title button
+    if st.button("Generate Title", key="gen_title"):
+        if title_content and selected_title_client:
+            with st.spinner("Generating title..."):
+                generated_title = chain_title_generation.run(
+                    newsletter_content=title_content,
+                    title_examples=title_examples,
+                    client_name=selected_title_client
+                )
+            st.markdown("### Generated Title")
+            st.write(generated_title)
+            
+            # Show character count
+            char_count = len(generated_title)
+            st.info(f"Character count: {char_count}")
+            
+            # Copy button
+            if st.button("Copy Title to Clipboard", key="copy_title"):
+                st.success("Title copied to clipboard!")
+                
+            # Option to save this title to the session state
+            if st.button("Use This Title for Newsletter", key="use_title"):
+                st.session_state.newsletter_title = generated_title
+                st.success("Title saved and will be used for the newsletter!")
+        else:
+            st.error("Please provide newsletter content and select a client for the title.")
+    
+    # Generate multiple titles option
+    st.markdown("---")
+    st.markdown("### Generate Multiple Title Options")
+    num_titles = st.slider("Number of title options to generate", min_value=2, max_value=5, value=3)
+    
+    if st.button("Generate Multiple Titles", key="gen_multiple_titles"):
+        if title_content and selected_title_client:
+            with st.spinner(f"Generating {num_titles} title options..."):
+                # Create a custom prompt for multiple titles
+                multiple_titles_prompt = ChatPromptTemplate.from_messages([
+                    (
+                        "system",
+                        "Newsletter Title Writer: Create multiple concise, engaging titles for web3 newsletters that match example style. Provide distinct options with different angles or emphases. Focus on clarity and accuracy."
+                    ),
+                    (
+                        "human",
+                        f"Newsletter Content:\n{title_content}\n\n"
+                        f"Example Titles (carefully emulate this style):\n{title_examples}\n\n"
+                        f"Client Name: {selected_title_client}\n\n"
+                        f"Please generate {num_titles} different title options for this newsletter that capture the key information and match the style of the examples. Number each option."
+                    )
+                ])
+                
+                # Create a temporary chain for multiple titles
+                chain_multiple_titles = LLMChain(llm=anthropic_llm, prompt=multiple_titles_prompt)
+                
+                # Generate multiple titles
+                multiple_titles = chain_multiple_titles.run(
+                    newsletter_content=title_content,
+                    title_examples=title_examples,
+                    client_name=selected_title_client,
+                    num_titles=num_titles
+                )
+            
+            st.markdown("### Generated Title Options")
+            st.write(multiple_titles)
+            
+            # Option to select one of the titles
+            st.markdown("If you like one of these titles, copy it and use the 'Enter Custom Title' option below.")
+            
+            # Custom title input
+            custom_title = st.text_input("Enter Custom Title", key="custom_title_input")
+            if custom_title and st.button("Use Custom Title", key="use_custom_title"):
+                st.session_state.newsletter_title = custom_title
+                st.success("Custom title saved and will be used for the newsletter!")
+        else:
+            st.error("Please provide newsletter content and select a client for the titles.")
+
 # New tab for editing and saving the newsletter
 with edit_save_tab:
     st.title("Edit & Save Newsletter")
@@ -1034,5 +1220,3 @@ with edit_save_tab:
                 st.markdown(f"**{len(finetuning_data)} newsletters** ready for fine-tuning")
                 with st.expander("Preview Fine-tuning Data"):
                     st.json(finetuning_data[:2] if len(finetuning_data) > 2 else finetuning_data)
-
-# No instructions at the bottom
