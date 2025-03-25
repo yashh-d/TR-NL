@@ -632,7 +632,7 @@ with newsletter_tab:
 
     # --- Newsletter user inputs ---
     context_text = st.text_area("Context Information (Newsletter)", height=150)
-    topic = st.text_area("Newsletter Topic", height=50)
+    topic = st.text_area("Newsletter Topic", height=50, key="newsletter_topic_input")
     
     # Add additional tailoring instructions right after context input
     st.markdown("### Additional Tailoring Instructions")
@@ -641,7 +641,8 @@ with newsletter_tab:
     additional_instructions = st.text_area(
         "Custom Instructions",
         placeholder="Examples:\n- Focus more on technical aspects\n- Emphasize community growth metrics\n- Use more concrete examples\n- Keep a neutral but optimistic tone\n- Highlight potential impact on developers",
-        height=100
+        height=100,
+        key="additional_instructions_input"
     )
     
     # More detailed options in an expander
