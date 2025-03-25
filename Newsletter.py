@@ -581,35 +581,69 @@ st.title("Token Relations 📊 Newsletter")
 newsletter_tab, bullet_points_tab, tweet_tab, title_tab, edit_save_tab = st.tabs(["Newsletter Generator", "Bullet Point Generator", "Tweet Generator", "Title Generator", "Edit & Save"])
 
 with newsletter_tab:
-    st.title("Newsletter Generator")
-    
-    # --- Client selection ---
-    selected_client = st.selectbox("Select a Client", list(CLIENT_FILES.keys()))
-    st.session_state.newsletter_client = selected_client
-    
-    # --- Style selection ---
-    style_options = list(STYLE_FILE_NAMES.keys())
-    selected_style = st.selectbox("Select a Style", style_options)
-    
-    # --- Load client summary and style reference ---
-    client_summary = load_client_summary(selected_client)
-    newsletter_example = load_style_reference(selected_client, selected_style)
-    long_term_doc = client_summary  # Using client summary as long-term doc
-    
+    st.markdown(
+        """
+        **Newsletter Generator Steps:** \n
+        **Step 1:** Extract key points from the context and client documentation + create detailed structure for each section of the newsletter \n
+        **Step 2:** Human review and edit extracted key points.\n
+        **Step 3:** Draft 'What happened' section.\n
+        **Step 4:** Draft 'Why it matters' section.\n
+        **Step 5:** Draft & Enhance 'The big picture' section. \n
+        **Step 6:** Compare the generated newsletter's style against the example.\n
+        **Step 7:** Apply style edits to the enhanced newsletter based on feedback.\n
+        """
+    )
+
+    # --- Client selection & loading client documentation ---
+    selected_client = st.selectbox("Select a Client", list(CLIENT_FILES.keys()), key="newsletter_client")
+    long_term_doc = ""
+    if selected_client:
+        try:
+            with open(CLIENT_FILES[selected_client], "r") as f:
+                long_term_doc = f.read()
+        except FileNotFoundError:
+            st.error(f"File not found for {selected_client} at {CLIENT_FILES[selected_client]}.")
+
+    # --- Style Reference Selection based on selected client ---
+    # Determine which folder to use for style files
+    if selected_client and selected_client in CLIENT_STYLE_FOLDERS:
+        style_folder = CLIENT_STYLE_FOLDERS[selected_client]
+        # Check if the folder exists
+        if not os.path.exists(style_folder):
+            st.warning(f"Client-specific style folder not found: {style_folder}. Using default styles.")
+            style_folder = DEFAULT_STYLE_FOLDER
+    else:
+        # Fallback to default styles if client doesn't have a specific folder
+        style_folder = DEFAULT_STYLE_FOLDER
+        st.info(f"Using default style references for {selected_client}.")
+
+    selected_style = st.selectbox("Select Newsletter Style Reference", list(STYLE_FILE_NAMES.keys()))
+    newsletter_example = ""
+    if selected_style:
+        # Combine the folder path with the selected style filename
+        style_file_path = os.path.join(style_folder, STYLE_FILE_NAMES[selected_style])
+        try:
+            with open(style_file_path, "r") as f:
+                newsletter_example = f.read()
+        except FileNotFoundError:
+            st.error(f"Style file not found at {style_file_path}. Please ensure the file exists.")
+            # Provide information about the expected directory structure
+            st.info(f"Make sure to create the style file: {STYLE_FILE_NAMES[selected_style]} in the folder: {style_folder}")
+
     # --- Newsletter user inputs ---
     context_text = st.text_area("Context Information (Newsletter)", height=150)
     topic = st.text_area("Newsletter Topic", height=50)
-    
-    # Add a more prominent additional tailoring instructions section BEFORE key points extraction
+
+    # Add a more prominent additional prompting section
     st.markdown("### Additional Tailoring Instructions")
     st.markdown("Provide specific guidance on style, focus areas, or other aspects you want to emphasize in this newsletter.")
-    
+
     additional_instructions = st.text_area(
         "Custom Instructions",
         placeholder="Examples:\n- Focus more on technical aspects\n- Emphasize community growth metrics\n- Use more concrete examples\n- Keep a neutral but optimistic tone\n- Highlight potential impact on developers",
         height=100
     )
-    
+
     # More detailed options in an expander
     with st.expander("Advanced Tailoring Options"):
         # Specific focus areas with sliders
@@ -641,19 +675,19 @@ with newsletter_tab:
         
         # Option to include these preferences in the prompts
         include_preferences = st.checkbox("Include focus preferences in prompts", value=True)
-    
+
     # Combine all additional instructions
     combined_instructions = ""
-    
+
     if additional_instructions:
         combined_instructions += f"Additional Instructions:\n{additional_instructions}\n\n"
-    
+
     if 'include_preferences' in locals() and include_preferences and any(x != 5 for x in [technical_focus, business_focus, community_focus, future_focus]):
         combined_instructions += focus_preferences
-    
+
     if combined_instructions:
         st.success("Your tailoring instructions will be included in the generation process.")
-    
+
     # Initialize session state variables
     if 'key_points_output' not in st.session_state:
         st.session_state.key_points_output = ""
@@ -667,7 +701,7 @@ with newsletter_tab:
         st.session_state.final_newsletter = ""
     if 'newsletter_title' not in st.session_state:
         st.session_state.newsletter_title = ""
-    
+        
     # Button: Extract Key Points (Step 1)
     if st.button("Step 1: Extract Key Points + Structure for Newsletter", key="extract_key_points") and not st.session_state.step1_completed:
         if context_text:
