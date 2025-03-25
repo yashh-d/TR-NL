@@ -632,7 +632,7 @@ with newsletter_tab:
 
     # --- Newsletter user inputs ---
     context_text = st.text_area("Context Information (Newsletter)", height=150)
-    topic = st.text_area("Newsletter Topic", height=50, key="newsletter_topic_input")
+    topic = st.text_area("Newsletter Topic", height=70, key="newsletter_topic_input")
     
     # Add additional tailoring instructions right after context input
     st.markdown("### Additional Tailoring Instructions")
