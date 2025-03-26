@@ -1,5 +1,11 @@
-streamlit
-langchain
-langchain-anthropic
-anthropic
-supabase
+streamlit>=1.22.0
+langchain>=0.0.267
+langchain-anthropic>=0.0.1
+langchain-openai>=0.0.1
+langchain-google-genai>=0.0.1
+anthropic>=0.5.0
+openai>=1.0.0
+google-generativeai>=0.3.0
+supabase>=1.0.3
+requests>=2.28.2
+python-dotenv>=1.0.0

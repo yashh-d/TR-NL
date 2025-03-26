@@ -4,6 +4,15 @@ from typing import Optional
 from datetime import datetime
 from supabase import create_client, Client  # Import Supabase client
 import json
+from langchain_anthropic import ChatAnthropic
+from langchain_openai import ChatOpenAI
+
+# Try to import Google Gemini, but silently handle if it's not available
+try:
+    from langchain_google_genai import ChatGoogleGenerativeAI
+    GOOGLE_AVAILABLE = True
+except ImportError:
+    GOOGLE_AVAILABLE = False
 
 # ----------------------------------------------------------------------
 # Install Dependencies (via terminal/pip):
@@ -76,7 +85,6 @@ DEFAULT_STYLE_FOLDER = "style_references/default"
 ###################
 # 2. ANTHROPIC SETUP
 ###################
-from langchain_anthropic import ChatAnthropic
 
 # Function to validate API key
 def validate_anthropic_api_key(api_key):
@@ -96,7 +104,7 @@ def validate_anthropic_api_key(api_key):
             "https://api.anthropic.com/v1/messages",
             headers=headers,
             json={
-                "model": "claude-3-sonnet-20240229",
+                "model": "claude-3-7-sonnet-latest",
                 "max_tokens": 10,
                 "messages": [{"role": "user", "content": "Hello"}]
             },
@@ -114,12 +122,19 @@ def validate_anthropic_api_key(api_key):
 
 # Check for API key in secrets first, then environment or session state
 try:
-    api_key = st.secrets["anthropic"]["api_key"]
-    # If we get here, the key was found in secrets
-    os.environ["ANTHROPIC_API_KEY"] = api_key  # Set it in environment for libraries that look there
-except (KeyError, TypeError):
+    # Try to get from secrets, but don't fail if secrets file is missing
+    api_key = ""
+    try:
+        api_key = st.secrets["anthropic"]["api_key"]
+        # If we get here, the key was found in secrets
+        os.environ["ANTHROPIC_API_KEY"] = api_key  # Set it in environment for libraries that look there
+    except (KeyError, TypeError, FileNotFoundError):
+        # Secrets file not found or key not in secrets - this is expected in some environments
+        pass
+        
     # If not in secrets, try environment or session state
-    api_key = os.environ.get("ANTHROPIC_API_KEY", st.session_state.get("ANTHROPIC_API_KEY", ""))
+    if not api_key:
+        api_key = os.environ.get("ANTHROPIC_API_KEY", st.session_state.get("ANTHROPIC_API_KEY", ""))
     
     # Only show the input form if no key is found anywhere
     if not api_key:
@@ -148,6 +163,25 @@ except (KeyError, TypeError):
         
         # Stop execution if no valid API key
         st.stop()
+except Exception as e:
+    # Catch any other unexpected errors
+    st.error(f"Error checking for API key: {str(e)}")
+    st.warning("Please enter your Anthropic API key below:")
+    
+    api_key_input = st.text_input("Enter your Anthropic API key:", type="password")
+    
+    if api_key_input and st.button("Validate and Save API Key"):
+        is_valid, message = validate_anthropic_api_key(api_key_input)
+        if is_valid:
+            st.session_state.ANTHROPIC_API_KEY = api_key_input
+            os.environ["ANTHROPIC_API_KEY"] = api_key_input
+            st.success("API key validated and saved for this session!")
+            st.experimental_rerun()
+        else:
+            st.error(message)
+    
+    # Stop execution if no valid API key
+    st.stop()
 
 # Initialize the Anthropic client with the API key
 try:
@@ -166,6 +200,166 @@ except Exception as e:
     st.error(f"Error initializing Anthropic client: {str(e)}")
     st.warning("Please check your API key and try again.")
     st.stop()
+
+###################
+# 3. MULTI-MODEL SETUP
+###################
+
+# Define available models
+AVAILABLE_MODELS = {
+    "Claude 3.7 Sonnet": {
+        "provider": "anthropic",
+        "model_name": "claude-3-7-sonnet-latest",
+        "description": "Anthropic's Claude 3.7 Sonnet - Balanced performance and cost"
+    },
+    "GPT-4o": {
+        "provider": "openai",
+        "model_name": "gpt-4o",
+        "description": "OpenAI's GPT-4o - Latest multimodal model"
+    },
+    "OpenAI o1-mini": {
+        "provider": "openai",
+        "model_name": "o1-mini",
+        "description": "OpenAI's o1-mini - Compact but powerful reasoning model"
+    },
+    "Google Gemini 2.0": {
+        "provider": "google",
+        "model_name": "gemini-1.5-pro",
+        "description": "Google's Gemini 2.0 Pro - Advanced multimodal capabilities"
+    }
+}
+
+# Function to initialize the selected model
+def initialize_llm(model_key):
+    model_info = AVAILABLE_MODELS.get(model_key)
+    if not model_info:
+        st.error(f"Unknown model: {model_key}")
+        return None
+    
+    provider = model_info["provider"]
+    model_name = model_info["model_name"]
+    
+    try:
+        if provider == "anthropic":
+            # Check if we have an Anthropic API key
+            if not api_key:
+                st.error("Anthropic API key not set. Cannot use Claude models.")
+                return None
+            
+            return ChatAnthropic(
+                api_key=api_key,
+                model=model_name,
+                temperature=0,
+                timeout=None,
+                max_retries=2,
+            )
+        
+        elif provider == "openai":
+            # Check for OpenAI API key
+            openai_api_key = ""
+            try:
+                openai_api_key = st.secrets.get("openai", {}).get("api_key", "")
+            except (FileNotFoundError, Exception):
+                # Secrets file not found - this is expected in some environments
+                pass
+            
+            if not openai_api_key:
+                openai_api_key = os.environ.get("OPENAI_API_KEY", "")
+            
+            if not openai_api_key:
+                openai_api_key = st.session_state.get("openai_api_key", "")
+            
+            if not openai_api_key:
+                with st.expander("Set OpenAI API Key"):
+                    openai_api_key = st.text_input("OpenAI API Key", type="password", key="openai_api_key_input")
+                    if st.button("Save OpenAI Key"):
+                        if openai_api_key:
+                            st.session_state.openai_api_key = openai_api_key
+                            st.success("OpenAI API key saved for this session!")
+                            st.experimental_rerun()
+            
+            if not openai_api_key:
+                st.error("OpenAI API key not set. Cannot use GPT models.")
+                return None
+            
+            return ChatOpenAI(
+                api_key=openai_api_key,
+                model=model_name,
+                temperature=0,
+            )
+        
+        elif provider == "google":
+            if not GOOGLE_AVAILABLE:
+                st.error("Google Gemini integration is not available. Install langchain-google-genai package.")
+                return None
+                
+            # Check for Google API key
+            google_api_key = st.secrets.get("google", {}).get("api_key", os.environ.get("GOOGLE_API_KEY", ""))
+            
+            if not google_api_key:
+                with st.expander("Set Google API Key"):
+                    google_api_key = st.text_input("Google API Key", type="password", key="google_api_key_input")
+                    if st.button("Save Google Key"):
+                        if google_api_key:
+                            st.session_state.google_api_key = google_api_key
+                            st.success("Google API key saved for this session!")
+                            st.experimental_rerun()
+                
+                if not google_api_key and not st.session_state.get("google_api_key"):
+                    st.error("Google API key not set. Cannot use Gemini models.")
+                    return None
+                
+                # Use the key from session state if available
+                if not google_api_key and st.session_state.get("google_api_key"):
+                    google_api_key = st.session_state.google_api_key
+            
+            return ChatGoogleGenerativeAI(
+                api_key=google_api_key,
+                model=model_name,
+                temperature=0,
+            )
+        
+        else:
+            st.error(f"Unsupported provider: {provider}")
+            return None
+            
+    except Exception as e:
+        st.error(f"Error initializing {model_key}: {str(e)}")
+        return None
+
+# Add model selection to the sidebar
+with st.sidebar:
+    st.title("Model Settings")
+    
+    selected_model = st.selectbox(
+        "Select LLM Provider",
+        options=list(AVAILABLE_MODELS.keys()),
+        index=0,  # Default to Claude 3.7 Sonnet
+        format_func=lambda x: f"{x} ({AVAILABLE_MODELS[x]['provider']})"
+    )
+    
+    # Show model description
+    st.info(AVAILABLE_MODELS[selected_model]["description"])
+    
+    # Initialize the selected model
+    if "current_model" not in st.session_state or st.session_state.current_model != selected_model:
+        with st.spinner(f"Initializing {selected_model}..."):
+            llm = initialize_llm(selected_model)
+            if llm:
+                st.session_state.llm = llm
+                st.session_state.current_model = selected_model
+                st.success(f"{selected_model} initialized successfully!")
+            else:
+                st.error(f"Failed to initialize {selected_model}")
+                # Update the fallback model in the sidebar section
+                if api_key and "llm" not in st.session_state:
+                    st.warning("Falling back to Claude 3.7 Sonnet...")
+                    st.session_state.llm = ChatAnthropic(
+                        api_key=api_key,
+                        model="claude-3-7-sonnet-latest",
+                        temperature=0
+                    )
+                    st.session_state.current_model = "Claude 3.7 Sonnet"
 
 ##########################
 # 4. DEFINING PROMPTS
@@ -196,8 +390,8 @@ draft_what_happened_prompt = ChatPromptTemplate.from_messages([
         "human",
         "Key Points:\n{key_points}\n\n"
         "Newsletter Topic: {topic}\n\n"
-        "Draft a 'What happened' section (1–2 sentences) in a style similar to this example:\n{newsletter_example}"
-        "{additional_instructions}"
+        "Draft a 'What happened' section (1–2 sentences) in a style similar to this example:\n{newsletter_example}\n\n"
+        "{additional_instructions}"  # This will be an empty string if no additional instructions
     )
 ])
 
@@ -343,22 +537,42 @@ title_generation_prompt = ChatPromptTemplate.from_messages([
 ################################
 # 5. CREATE LLM CHAINS
 ################################
-chain_extract = LLMChain(llm=anthropic_llm, prompt=extract_points_prompt)
-chain_what_happened = LLMChain(llm=anthropic_llm, prompt=draft_what_happened_prompt)
-chain_why_matters = LLMChain(llm=anthropic_llm, prompt=draft_why_matters_prompt)
-chain_combined_big_picture = LLMChain(llm=anthropic_llm, prompt=combined_big_picture_prompt) # Combined Chain
-chain_style = LLMChain(llm=anthropic_llm, prompt=style_check_prompt)
-chain_style_edit = LLMChain(llm=anthropic_llm, prompt=style_edit_prompt)
+# Initialize chains with the selected model
+def initialize_chains():
+    # Use the selected model from session state, or fall back to anthropic_llm
+    llm = st.session_state.get("llm", anthropic_llm)
+    
+    # Initialize all chains with the selected model
+    chain_extract = LLMChain(llm=llm, prompt=extract_points_prompt)
+    chain_what_happened = LLMChain(llm=llm, prompt=draft_what_happened_prompt)
+    chain_why_matters = LLMChain(llm=llm, prompt=draft_why_matters_prompt)
+    chain_combined_big_picture = LLMChain(llm=llm, prompt=combined_big_picture_prompt)
+    chain_style = LLMChain(llm=llm, prompt=style_check_prompt)
+    chain_edit = LLMChain(llm=llm, prompt=style_edit_prompt)
+    chain_tweet_generation = LLMChain(llm=llm, prompt=tweet_generation_prompt)
+    chain_title_generation = LLMChain(llm=llm, prompt=title_generation_prompt)
+    
+    return {
+        "extract": chain_extract,
+        "what_happened": chain_what_happened,
+        "why_matters": chain_why_matters,
+        "big_picture": chain_combined_big_picture,
+        "style": chain_style,
+        "edit": chain_edit,
+        "tweet": chain_tweet_generation,
+        "title": chain_title_generation
+    }
 
-# Separate chains for ecosystem and community bullet points
-chain_ecosystem_bullet_points = LLMChain(llm=anthropic_llm, prompt=ecosystem_bullet_point_prompt)
-chain_community_bullet_points = LLMChain(llm=anthropic_llm, prompt=community_bullet_point_prompt)
-
-# New chain for tweet generation
-chain_tweet_generation = LLMChain(llm=anthropic_llm, prompt=tweet_generation_prompt)
-
-# New chain for title generation
-chain_title_generation = LLMChain(llm=anthropic_llm, prompt=title_generation_prompt)
+# Initialize chains
+chains = initialize_chains()
+chain_extract = chains["extract"]
+chain_what_happened = chains["what_happened"]
+chain_why_matters = chains["why_matters"]
+chain_combined_big_picture = chains["big_picture"]
+chain_style = chains["style"]
+chain_edit = chains["edit"]
+chain_tweet_generation = chains["tweet"]
+chain_title_generation = chains["title"]
 
 # Function to load bullet point examples
 def load_bullet_point_examples(bullet_point_type):
@@ -731,99 +945,111 @@ with newsletter_tab:
                                                         height=1000)
         
         # Button to confirm key points and continue
-        if st.button("Confirm Key Points and Generate Newsletter", key="confirm_key_points"):
-            st.session_state.step2_started = True
-            
-    # Generate the rest of the newsletter (Steps 2-5)
-    if st.session_state.step2_started:
-        if newsletter_example and topic:
-            # Step 2a
-            with st.spinner("Drafting 'What happened'..."):
-                # Get additional instructions from session state if available
-                additional_instr = st.session_state.get("additional_instructions", "")
+        if st.button("Step 2: Generate Newsletter Draft", key="generate_draft") and st.session_state.step1_completed and not st.session_state.step2_started:
+            # Check if style reference is selected
+            if not newsletter_example:
+                st.error("Please select a Style Reference. This is required for proper formatting.")
+            else:
+                # Make topic optional with a default value
+                if not topic:
+                    st.warning("No Topic entered. Using a generic topic.")
+                    topic = "Recent developments"
                 
-                # Add to the run parameters if instructions exist
-                run_params = {
-                    "newsletter_example": newsletter_example,
-                    "key_points": st.session_state.edited_key_points,
-                    "topic": topic
-                }
+                st.session_state.step2_started = True
                 
-                if additional_instr:
-                    run_params["additional_instructions"] = additional_instr
-                
-                what_happened_draft = chain_what_happened.run(**run_params)
-            st.markdown("### Draft - What Happened")
-            st.write(what_happened_draft)
+                with st.spinner("Generating newsletter draft..."):
+                    # Step 2a
+                    with st.spinner("Drafting 'What happened'..."):
+                        # Get additional instructions from session state if available
+                        additional_instr = st.session_state.get("additional_instructions", "")
+                        
+                        # Always include additional_instructions in run_params, even if empty
+                        run_params = {
+                            "newsletter_example": newsletter_example,
+                            "key_points": st.session_state.edited_key_points,
+                            "topic": topic,
+                            "additional_instructions": additional_instr  # Always include this parameter
+                        }
+                        
+                        what_happened_draft = chain_what_happened.run(**run_params)
+                    st.markdown("### Draft - What Happened")
+                    st.write(what_happened_draft)
+                    
+                    # Step 2b
+                    with st.spinner("Drafting 'Why it matters'..."):
+                        # Always include additional_instructions in run_params, even if empty
+                        run_params = {
+                            "newsletter_example": newsletter_example,
+                            "key_points": st.session_state.edited_key_points,
+                            "topic": topic,
+                            "additional_instructions": additional_instr  # Always include this parameter
+                        }
+                        
+                        why_matters_draft = chain_why_matters.run(**run_params)
+                    st.markdown("### Draft - Why It Matters")
+                    st.write(why_matters_draft)
 
-            # Step 2b
-            with st.spinner("Drafting 'Why it matters'..."):
-                why_matters_draft = chain_why_matters.run(
-                    newsletter_example=newsletter_example,
-                    key_points=st.session_state.edited_key_points,
-                    topic=topic
-                )
-            st.markdown("### Draft - Why It Matters")
-            st.write(why_matters_draft)
+                    # Step 2c (Combined Draft & Enhance 'Big Picture')
+                    with st.spinner("Drafting & Enhancing 'The big picture'..."):
+                        # Always include additional_instructions in run_params, even if empty
+                        run_params = {
+                            "newsletter_example": newsletter_example,
+                            "key_points": st.session_state.edited_key_points,
+                            "topic": topic,
+                            "long_term_doc": long_term_doc,
+                            "additional_instructions": additional_instr  # Always include this parameter
+                        }
+                        
+                        big_picture_enhanced = chain_combined_big_picture.run(**run_params)
+                    st.markdown("### Draft + Enhanced - The Big Picture")
+                    st.write(big_picture_enhanced)
 
-            # Step 2c (Combined Draft & Enhance 'Big Picture')
-            with st.spinner("Drafting & Enhancing 'The big picture'..."):
-                big_picture_enhanced = chain_combined_big_picture.run(
-                    newsletter_example=newsletter_example,
-                    key_points=st.session_state.edited_key_points,
-                    topic=topic,
-                    long_term_doc=long_term_doc,  # Pass long_term_doc for combined chain
-                    additional_instructions=combined_instructions
-                )
-            st.markdown("### Draft + Enhanced - The Big Picture")
-            st.write(big_picture_enhanced)
+                    newsletter_draft = (
+                        f"**What happened:**\n{what_happened_draft}\n\n"
+                        f"**Why does it matter:**\n{why_matters_draft}\n\n"
+                        f"**The big picture:**\n{big_picture_enhanced}" # Use enhanced big picture directly
+                    )
+                    st.markdown("### Combining Draft Newsletter")
+                    
 
-            newsletter_draft = (
-                f"**What happened:**\n{what_happened_draft}\n\n"
-                f"**Why does it matter:**\n{why_matters_draft}\n\n"
-                f"**The big picture:**\n{big_picture_enhanced}" # Use enhanced big picture directly
-            )
-            st.markdown("### Combining Draft Newsletter")
-            
+                    # Step 4
+                    with st.spinner("Step 4: Comparing writing style..."):
+                        style_comparison = chain_style.run(
+                            newsletter_example=newsletter_example,
+                            enhanced_newsletter=newsletter_draft # Compare against the combined draft newsletter now
+                        )
+                    st.markdown("### Style Comparison Feedback")
+                    st.write(style_comparison)
 
-            # Step 4
-            with st.spinner("Step 4: Comparing writing style..."):
-                style_comparison = chain_style.run(
-                    newsletter_example=newsletter_example,
-                    enhanced_newsletter=newsletter_draft # Compare against the combined draft newsletter now
-                )
-            st.markdown("### Style Comparison Feedback")
-            st.write(style_comparison)
-
-            # Step 5
-            with st.spinner("Step 5: Applying style edits..."):
-                newsletter_style_edited = chain_style_edit.run(
-                    style_comparison=style_comparison,
-                    newsletter_enhanced=newsletter_draft, # Pass the combined draft for style editing
-                    newsletter_example=newsletter_example
-                )
-            st.markdown("### Style Edited Newsletter")
-            st.write(newsletter_style_edited)
-            
-            # Store the final newsletter in session state for use in Tweet generator
-            st.session_state.final_newsletter = newsletter_style_edited
-            
-            # Generate title based on the newsletter content
-            with st.spinner("Generating newsletter title..."):
-                # Load title examples
-                title_examples = load_title_examples()
-                
-                # Generate title
-                generated_title = chain_title_generation.run(
-                    newsletter_content=newsletter_style_edited,
-                    title_examples=title_examples,
-                    client_name=selected_client
-                )
-                
-                # Store and display the title
-                st.session_state.newsletter_title = generated_title
-                st.markdown("### Generated Newsletter Title")
-                st.write(generated_title)
+                    # Step 5
+                    with st.spinner("Step 5: Applying style edits..."):
+                        newsletter_style_edited = chain_edit.run(
+                            style_comparison=style_comparison,
+                            newsletter_enhanced=newsletter_draft, # Pass the combined draft for style editing
+                            newsletter_example=newsletter_example
+                        )
+                    st.markdown("### Style Edited Newsletter")
+                    st.write(newsletter_style_edited)
+                    
+                    # Store the final newsletter in session state for use in Tweet generator
+                    st.session_state.final_newsletter = newsletter_style_edited
+                    
+                    # Generate title based on the newsletter content
+                    with st.spinner("Generating newsletter title..."):
+                        # Load title examples
+                        title_examples = load_title_examples()
+                        
+                        # Generate title
+                        generated_title = chain_title_generation.run(
+                            newsletter_content=newsletter_style_edited,
+                            title_examples=title_examples,
+                            client_name=selected_client
+                        )
+                        
+                        # Store and display the title
+                        st.session_state.newsletter_title = generated_title
+                        st.markdown("### Generated Newsletter Title")
+                        st.write(generated_title)
 
         else:
             st.error("Please select a Style Reference and enter a Topic.")
@@ -865,7 +1091,7 @@ with bullet_points_tab:
         if st.button("Generate Ecosystem Bullet Points", key="gen_ecosystem"):
             if ecosystem_context:
                 with st.spinner("Generating ecosystem bullet points..."):
-                    ecosystem_bullets = chain_ecosystem_bullet_points.run(
+                    ecosystem_bullets = chain_ecosystem_bullet_point_prompt.run(
                         context_text=ecosystem_context,
                         example_bullet_points=ecosystem_example
                     )
@@ -899,7 +1125,7 @@ with bullet_points_tab:
         if st.button("Generate Community Bullet Points", key="gen_community"):
             if community_context:
                 with st.spinner("Generating community bullet points..."):
-                    community_bullets = chain_community_bullet_points.run(
+                    community_bullets = chain_community_bullet_point_prompt.run(
                         context_text=community_context,
                         example_bullet_points=community_example
                     )
