@@ -210,22 +210,22 @@ AVAILABLE_MODELS = {
     "Claude 3.7 Sonnet": {
         "provider": "anthropic",
         "model_name": "claude-3-7-sonnet-latest",
-        "description": "Anthropic's Claude 3.7 Sonnet - Balanced performance and cost"
+        "description": "Anthropic's Claude 3.7 Sonnet"
     },
     "GPT-4o": {
         "provider": "openai",
         "model_name": "gpt-4o",
-        "description": "OpenAI's GPT-4o - Latest multimodal model"
+        "description": "OpenAI's GPT-4o"
     },
     "OpenAI o1-mini": {
         "provider": "openai",
         "model_name": "o1-mini",
-        "description": "OpenAI's o1-mini - Compact but powerful reasoning model"
+        "description": "OpenAI's o1-mini"
     },
     "Google Gemini 2.0": {
         "provider": "google",
         "model_name": "gemini-1.5-pro",
-        "description": "Google's Gemini 2.0 Pro - Advanced multimodal capabilities"
+        "description": "Google's Gemini 2.0 Pro"
     }
 }
 
@@ -537,7 +537,7 @@ title_generation_prompt = ChatPromptTemplate.from_messages([
 ################################
 # 5. CREATE LLM CHAINS
 ################################
-# Initialize chains with the selected model
+# Update the initialize_chains function to include the bullet point chains
 def initialize_chains():
     # Use the selected model from session state, or fall back to anthropic_llm
     llm = st.session_state.get("llm", anthropic_llm)
@@ -551,6 +551,8 @@ def initialize_chains():
     chain_edit = LLMChain(llm=llm, prompt=style_edit_prompt)
     chain_tweet_generation = LLMChain(llm=llm, prompt=tweet_generation_prompt)
     chain_title_generation = LLMChain(llm=llm, prompt=title_generation_prompt)
+    chain_ecosystem_bullet_point_prompt = LLMChain(llm=llm, prompt=ecosystem_bullet_point_prompt)
+    chain_community_bullet_point_prompt = LLMChain(llm=llm, prompt=community_bullet_point_prompt)
     
     return {
         "extract": chain_extract,
@@ -560,7 +562,9 @@ def initialize_chains():
         "style": chain_style,
         "edit": chain_edit,
         "tweet": chain_tweet_generation,
-        "title": chain_title_generation
+        "title": chain_title_generation,
+        "ecosystem_bullet": chain_ecosystem_bullet_point_prompt,
+        "community_bullet": chain_community_bullet_point_prompt
     }
 
 # Initialize chains
@@ -573,6 +577,8 @@ chain_style = chains["style"]
 chain_edit = chains["edit"]
 chain_tweet_generation = chains["tweet"]
 chain_title_generation = chains["title"]
+chain_ecosystem_bullet_point_prompt = chains["ecosystem_bullet"]
+chain_community_bullet_point_prompt = chains["community_bullet"]
 
 # Function to load bullet point examples
 def load_bullet_point_examples(bullet_point_type):
