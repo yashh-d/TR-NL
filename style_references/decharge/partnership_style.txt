@@ -1,0 +1,11 @@
+DeCharge recently partnered with Standard Bots to deploy autonomous EV charging bots commercially. This collaboration will allow users to use DeCharge Beast to charge their EVs automatically by detecting the vehicle and unlocking the charging port, all without the need of human intervention.
+
+This year, the network hopes to deploy these autonomous charging bots by parking them in commercial areas like malls, where charging stations are traditionally for public use.
+
+At ETHDenver, the DeCharge team also presented the first instance of onchain charging using its messaging layer, in collaboration with DePHY. This can create a better user experience where charging sessions are securely recorded on the blockchain. In turn, this can provide transparent, tamper-proof records of energy transfers and payment.
+
+The messaging layer acts as a bridge between physical charging infrastructure and the blockchain network by providing real-time communication between charging stations and vehicles, all while still maintaining decentralization.
+
+For users, this technology can help with payments and verifications in order to enhance user experiences for onchain transactions. This can address challenges in EV charging by creating a trustless system where users can verify energy delivery and billing accuracy.
+
+In the long term, these two developments could open up new opportunities for user flows that help people pay and earn on EV charging through services like DeCharge Beast.

@@ -1,0 +1,15 @@
+🌊What happened: Flow DeFi ecosystem has increased 41.5% in the past month, approaching all-time highs, as protocols and cross-chain connectivity expand the chain’s growth.
+
+🌊Why does it matter: Flow is expanding its ecosystem beyond its NFT roots to become a home for DeFi. Protocols on the network are providing DeFi tools with elements like stablecoins and liquid staking, while trading platforms leverage Flow's high throughput and low gas fees—for less than one cent.
+
+The success of native protocols like KittyPunch and Increment Finance have been big players in Flow's ecosystem, with these DeFi projects contributing to the chain’s overall growth. KittyPunch has had a profound rise with it increasing TVL by 342% to $15.78 million in the past month. The protocol also offers stablecoins and farming tools that have attracted users to the ecosystem with StableKitty’s TVL at $7.59 million and offering 67.91% yields in its farm. 
+
+Furthermore, the cross-chain connectivity through multiple bridges solves one of Flow's previous limitations by connecting it to the broader blockchain ecosystem. The LayerZero Stargrate bridge gives users the access to a cross-chain bridge, providing more secure transfers with instant finality. Users can now move assets between Flow and other major networks, increasing liquidity and use cases. Additionally, Flow also offers dual smart contract support through Solidity code and its native language, Cadence. This allows existing Ethereum projects to deploy on it without code modifications on EVM.
+
+Also, the introduction of products like USDF, backed by PayPal's pyUSD, and Ankr's liquid staking help create financial instruments and essential building blocks for more complex DeFi applications. These foundational elements can help developers to create dApps with yield opportunities and various other DeFi capabilities. 
+
+Overall for users, Flow's DeFi growth means more options for bridging, swapping and staking for yield. The combination of low fees and cross-chain access makes even small transactions possible that were previously not possible on high congestion and gas fee ecosystems.
+
+🌊The big picture:  Flow's DeFi growth also points to a broader interest in the sector from retail and institutional investors. As this user base and market continues to grow, the number of opportunities onchain can, too. The protocols in Flow’s ecosystem can give users access to participate in a variety of ways from yields, swaps, and trading.
+
+For the broader web3 audience, integrating cross-chain bridges follow the ethos and importance of interoperability throughout blockchains. The goal of connecting liquidity and providing users a more unified experience, similar to web2, is a shared goal across many ecosystems and chains.

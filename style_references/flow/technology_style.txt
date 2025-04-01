@@ -1,0 +1,13 @@
+🌊What happened: Flow has integrated LayerZero’s Stargate bridge on its network to provide a cross-chain bridge for its users. 
+
+🌊Why does it matter: This integration gives Flow users and dApps the ability to tap into a native asset cross-chain bridge, providing more secure transfers with instant finality. It also opens up access to Stargate’s unified liquidity pool, Omnichain DeFi, which has $340 billion in TVL. 
+
+LayerZero supports over 70 blockchains and has over 200 applications built on top of its technology. This integration connects Flow’s ecosystem to the broader web3 ecosystem, for the first time.The ability for liquidity to move from external chains into Flow can help the ecosystem’s growth by increasing capital and enhancing user experiences across its dApps.
+
+Flow's DeFi protocols such as Increment.Fi, Trado, and KittyPunch can also benefit from this upgrade as Stargate can help alleviate the liquidity demands of these dApps and provide users better onchain experiences when transferring and accessing funds. Additionally, this could provide a better trading, swapping, and yield experience on these platforms with the access to Stargate’s cross-chain liquidity pools.
+
+Meanwhile, the secure native transfer element gives users the ability to operate across chains, while keeping assets in their original state across multiple networks. The access to a unified pool of assets through the Omnichain’s aggregated liquidity also helps developers leverage Flow’s low transaction cost infrastructure and build dApps with cross-chain capabilities. Flow users and devs can also tap into other benefits like aggregated liquidity across multiple networks, reduced fragmentation, and improved access to deep liquidity.
+
+🌊The big picture: Cross-chain native asset transfers give users a feeling of less friction and more interoperability. This function also creates a practical form of integration by linking liquidity across chains and ensuring assets can transfer through safe and secure bridging. This setup ensures that users have immediate access to funds and that assets maintain their native state as they move across different networks.
+
+As interoperability and native asset transfers grow, many previously fragmented blockchains will have its liquidity, users and capabilities all connected. Stargate and other interoperability solutions are helping to unify web3 ecosystems, while improving user and developer experiences. Flow’s integration of Stargate can help the ecosystem to expand to other chains’ opportunities, while remaining within its community, and contribute to the broader unification of web3.

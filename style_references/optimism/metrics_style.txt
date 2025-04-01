@@ -1,19 +1,21 @@
-As demand continues to grow for the DeCharge protocol, it is expected to hit a landmark of 300,000 charging minutes by the end of September, signaling greater infrastructure possibilities and expansion of DePIN technology in India.
+⚡What’s happening: Base ranked as the top blockchains by bridged net flows at $3.7 billion over the past year, according to Artemis data. 
 
-Before developing the DeCharge protocol, its team has had a longtime belief that  its growth strategy would focus on the expected market trends involving EV fleet companies that rent out EVs to quick commerce-based delivery partners. 
+⚡Why it matters: Base ranked at the top of this category with Optimism’s OP Mainnet taking the second highest slot at $2.1 billion, over the past 12-months, the data showed. This means the two together bridged over $5.8 billion in net flows.
 
-This belief was confirmed when EV fleet companies began reaching out and showed interest in the OCPP-compliant hardware setup that operates on the DeCharge protocol.
+The dominance of these two chains by net flows highlights the broader Superchain ecosystem’s attractive scalability, which continues to draw developers and liquidity across different web3 projects. 
 
-The team went on to sign three EV fleet partners who have a total of 7,000 EVs in their networks. This opened up access to 100,000 EV fleet riders who will be interfacing with the DePIN ecosystem provided by DeCharge. 
+The two networks, built on the OP Stack, also ranked above other high traffic networks such as Solana at $2.1 billion and Arbitrum at $1.5 billion, the data showed. 
 
-The business clients have also partnered with the charging infrastructure and mapping APIs provided by DeCharge, thereby showing a massive up-tick in the infra adoption story.
+For Base specifically, its developer kit has contributed to its growth, with some of the largest AI projects built on the network. Virtuals, a protocol for developing decentralized AI agent applications built on Base has incubated popular AI crypto projects like AIXBT. The autonomous X bot has developed mass exposure as it leads Cookie DAO’s AI agents index mindshare at 15.75%. AIXBT has also amassed a market cap of over $500 million. 
 
-DeCharge has recently secured significant partnerships with Bijiliride, Hala Mobility, and Ecom Express, all of which are key players in the EV and logistics sectors in India. 
+Base’s AI market cap is at $7.2 billion, Cookie DAO’s data shows. Similarly, Virtuals’ token is the sixth largest AI token by market cap and it has been a major contributor to the Base ecosystem with over $2.1 billion bridged to the network from its platform.
 
-Bijiliride operates a fleet of over 2,500 EVs with more than 70,000 drivers; Hala Mobility has over 3,000 EVs and 50,000 drivers; while Ecom Express, a massive Indian logistics company with a market cap of $800 million, is on a mission to fully electrify its fleet of 500,000 drivers by 2030. 
+OP mainnet also had networks with increased activity onchain such as Uniswap, Chainlink, Velodrome and Circle. The Superchain DEX, Velodrome, saw growth in TVL going from $7.4 billion to $22.6 billion and contributing to the net flows of the OP mainnet ecosystem.
 
-Partnerships like these and others continue to showcase the demand from the business-to-business-to-consumer (B2B2C) sector for this technology. As more partnerships transpire, it can further exemplify the B2B2C approach that helps in the overarching compounding growth factor.
+Base and OP mainnet’s successes in the past year highlights the many new developments happening with projects built with the OP Stack, especially in AI.
 
-In response to the increasing demand, DeCharge has deployed more than 20 devices at strategic hubs within the last three days. This enables the partner company to power over 500,000 kilometers of travel daily, with a charging requirement exceeding 50,000 units per day. DeCharge is now aggressively expanding its charging infrastructure across India, aiming to fully meet this growing demand within the next 4 months.
+⚡What it means for the broader ecosystem: The Superchain ecosystem’s success in 2024 reflects the growing adoption of OP Stack’s technology and ability to support decentralized applications with many users and large liquidity. 
 
-With the enhanced demand from clientele, strategic deployments are expected to further increase over the next few weeks. This will give an expected lift of 15% week-on-week growth from the current metrics. 
+The Superchain ecosystem has 319 apps live and contributes to nearly 50% of all layer-2 transactions on Ethereum. As it continues to grow and moves towards interoperability, the chains and projects within the ecosystem will also have opportunities to increase users and liquidity across many networks with the unifying layer. 
+
+The rising interest in AI protocols across the crypto ecosystem has been one of the leading narratives in web3. Networks built on the OP Stack like Base have produced some of the most popular applications thus far. If the trends continue, the Superchain could be the home to some of the most popular applications in crypto providing developers with an intuitive and efficient platform to build and scale apps across Ethereum.

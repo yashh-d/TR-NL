@@ -1,0 +1,16 @@
+Flow is a fast, decentralized blockchain designed specifically for digital assets and next-generation applications. Created by Dapper Labs (the team behind CryptoKitties), Flow was built to address the scalability limitations of earlier blockchains while maintaining decentralization and security.
+Key Features
+
+Multi-role Architecture: Unlike many blockchains, Flow separates consensus, computation, storage, and verification into specialized node roles, enabling high throughput without sharding.
+Smart Contracts with Cadence: Flow introduces Cadence, a resource-oriented programming language designed to be secure and developer-friendly for building digital assets and dApps.
+Resource-Oriented Programming: Digital assets on Flow are modeled as resources with clear ownership rules, making them more intuitive to work with.
+Developer Experience: Flow prioritizes tooling and developer experience, with multiple SDKs and frameworks for easier onboarding.
+Upgradeable Smart Contracts: Supports contract upgradeability without compromising security, enabling smoother evolution of applications.
+
+Prominent Use Cases
+
+NBA Top Shot: The hugely successful digital collectibles platform for basketball highlights and moments.
+Gaming & NFTs: Optimized for NFTs, games, and interactive experiences.
+Decentralized Finance (DeFi): Supporting a growing ecosystem of financial applications.
+
+The FLOW token serves as the native currency for the network, used for staking, fees, and rewards within the ecosystem.

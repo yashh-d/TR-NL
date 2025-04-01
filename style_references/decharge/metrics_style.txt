@@ -1,0 +1,19 @@
+As demand continues to grow for the DeCharge protocol, it is expected to hit a landmark of 300,000 charging minutes by the end of September, signaling greater infrastructure possibilities and expansion of DePIN technology in India.
+
+Before developing the DeCharge protocol, its team has had a longtime belief that  its growth strategy would focus on the expected market trends involving EV fleet companies that rent out EVs to quick commerce-based delivery partners. 
+
+This belief was confirmed when EV fleet companies began reaching out and showed interest in the OCPP-compliant hardware setup that operates on the DeCharge protocol.
+
+The team went on to sign three EV fleet partners who have a total of 7,000 EVs in their networks. This opened up access to 100,000 EV fleet riders who will be interfacing with the DePIN ecosystem provided by DeCharge. 
+
+The business clients have also partnered with the charging infrastructure and mapping APIs provided by DeCharge, thereby showing a massive up-tick in the infra adoption story.
+
+DeCharge has recently secured significant partnerships with Bijiliride, Hala Mobility, and Ecom Express, all of which are key players in the EV and logistics sectors in India. 
+
+Bijiliride operates a fleet of over 2,500 EVs with more than 70,000 drivers; Hala Mobility has over 3,000 EVs and 50,000 drivers; while Ecom Express, a massive Indian logistics company with a market cap of $800 million, is on a mission to fully electrify its fleet of 500,000 drivers by 2030. 
+
+Partnerships like these and others continue to showcase the demand from the business-to-business-to-consumer (B2B2C) sector for this technology. As more partnerships transpire, it can further exemplify the B2B2C approach that helps in the overarching compounding growth factor.
+
+In response to the increasing demand, DeCharge has deployed more than 20 devices at strategic hubs within the last three days. This enables the partner company to power over 500,000 kilometers of travel daily, with a charging requirement exceeding 50,000 units per day. DeCharge is now aggressively expanding its charging infrastructure across India, aiming to fully meet this growing demand within the next 4 months.
+
+With the enhanced demand from clientele, strategic deployments are expected to further increase over the next few weeks. This will give an expected lift of 15% week-on-week growth from the current metrics. 
