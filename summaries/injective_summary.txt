@@ -1,0 +1,8 @@
+Injective (INJ) Explained
+Injective Protocol (INJ) is a decentralized exchange (DEX) that offers cross-chain margin trading, derivatives and forex futures trading.
+
+The Injective Protocol is built on the Cosmos blockchain as a layer-2 application. The protocol uses cross-chain bridges which allow traders to access cryptocurrencies from platforms such as Ethereum and Polkadot.
+
+Unlike other popular decentralized exchanges such as Uniswap or Bancor, Injective Protocol does not use an automated market maker (AMM) formula to manage liquidity. Instead, Injective follows the order book model that has been widely used for years across centralized stock and crypto trading platforms. In doing so, Injective aims to match the efficiency of traditional finance with the transparency of decentralized exchanges.
+
+Instead of paying network gas fees to execute each transaction, Injective Exchange traders only pay standard market maker and taker fees using INJ coins. INJ coins also serve as the platform’s governance token and staking mechanism to power Injective’s Proof of Stake based blockchain.

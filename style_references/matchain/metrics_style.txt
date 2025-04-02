@@ -1,0 +1,16 @@
+🔥What we’re watching: Over the past seven days, Matchain ranked as the second largest layer-2 blockchain and fifth largest network by total unique active wallets at 3.71 million, according to DappRadar data.
+
+🔥Why it matters: Matchain’s growth metrics show strong traction for projects building on top of its ecosystem. Its dApp ecosystem covers a broad range of topics like AI, gaming and e-commerce, showing the broad range of capabilities L2s can tap into.
+
+These dApps, especially in the gaming sector, have contributed to the network's recent growth. The popular mini-app "LOL," which has a simple Telegram onboarding feature, has amassed 3.57 million unique active wallets just in the past 7 days. In turn, Matchain can manage a high volume of daily transactions and users. 
+
+Although unique active wallets don't always equate to unique users, the ability to manage even 1 million wallet addresses can signal that Matchain, at a network level, is able to process a large amount of transactions at low costs. LOL and other games like World of Dypians, which has generally increased by UAW since March 2024,  are cultivating a community in the ecosystem rather than just temporary interest.
+
+The network has also managed to balance this scalability with security by leveraging the OP Stack's infrastructure as a proverbial backbone. This helps to secure the network and all dApps within the ecosystem, so even if the UAW goes higher, it can handle the load. Furthermore, the platform is also integrated with BNB Smart Chain as its “Data Availability” layer, leading to  cross-chain capabilities such as Matchain driving 20% of Dmail's cross-chain traffic in early December. 
+
+This hybrid architecture allows Matchain to reduce transaction costs, while maintaining high throughput, making it attractive to developers and users alike. 
+
+🔥The bigger picture: While unique active wallets can show traction on a chain, it’s not the only category to monitor. Matchain has also continued to develop its decentralized identity infrastructure and AI capabilities to create new use cases where users maintain sovereignty over their digital identities and data. This approach can address challenges in data ownership, while helping developers to build more personalized and secure applications with AI. 
+
+Also through strategic partnerships like the PSG Joint Innovation Studio, Matchain can expand its reach beyond its current user base and introduce mainstream audiences to blockchain-based identity solutions. Matchain's focus on cross-chain functionality and AI integration can help bridge traditional systems to web3, transforming how people interact with their data and privacy.
+

@@ -1,0 +1,13 @@
+Taking full advantage of bitcoin’s capabilities can be hard for many, but it doesn’t have to be.
+
+Mezo Network shared its roadmap for 2025 focused on growing the Bitcoin DeFi (BTCfi) and allowing users to put their bitcoin to work. The network aims to provide a place for users to borrow against their bitcoin in an easy and transparent manner. 
+
+Mezo looks to address Bitcoin’s historical limitations such as lack of scalability, utility and financial infrastructure, while preserving its origin of security and decentralization. 
+
+The team’s roadmap hopes to accomplish this through four avenues: create a bitcoin-backed stablecoin, mUSD, designed to provide stable liquidity for holders without requiring them to sell their assets; offer a secure platform that consolidates familiar DeFi tools like lending and staking in a user-friendly way; reward long-term believers and stakers; and increase bitcoin’s productivity by letting holders use it as collateral while minimizing risk.
+
+Through these initiatives, if done correctly, this could redefine bitcoin’s narrative from digital gold to an asset that can be used for investment purposes or as a gateway into blockchain technology. By turning bitcoin from just a store of value into a productive asset, this opens the door for greater accessibility for onchain purposes. 
+
+Bitcoin is the most widely known digital asset with a market cap of $1.6 trillion according to CoinMarketCap. For context, the next largest coin, widely known for its DeFi purposes, Ethereum, is 6x away in terms of market cap. So, if Mezo can tap into bitcoin and unlock even 1% of its liquidity, in a similar fashion to Ethereum, this can pave the way for a more onchain future. 
+
+But in order to perform bitcoin-related onchain transactions, there needs to be more DeFi protocols. Mezo hopes to accomplish this and make “2025 the year bitcoin becomes productive,” the team said in the blog post.

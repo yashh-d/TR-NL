@@ -1,0 +1,11 @@
+🔥What we’re watching: MatchID, Matchain's decentralized identity platform, hit 1 million registered users last week.
+
+🔥Why it matters: MatchID’s goal is to create a unified digital identity with an embedded wallet that works across multiple chains. Its user milestone showcases that decentralized identity solutions are moving beyond early adopters and gaining broader interest. By connecting traditional accounts like email and social media with blockchain wallets, MatchID looks to bridge web2 and web3 identities.
+
+MatchID can help dApps onboard users to popular sites like Twitter, Google and TikTok among others. This can lead to an easier web3 login process without the need for understanding or utilizing private keys to access wallets, which is a major point of friction for non-native web3 users. The simplified process creates a more familiar way of interacting across different blockchains and web3.
+
+MatchID is currently recognized on Ethereum, BNB Chain and Solana. Its multi-chain compatibility can help solve fragmentation issues since users can unify their accounts, instead of managing separate wallets across different networks. Users can also be secured through Matchain’s encryption mechanisms for private keys and user data sovereignty. This also allows users to onboard onto any app with their data, preventing the formation of data silos.
+
+🔥The bigger picture: MatchID looks to bridge the gap between traditional online identities and blockchain systems. By addressing the identity and onboarding challenge, the network can create a foundation for users to have greater control over their personal data and also improve onchain experiences. This also aligns with the goals of creating a more interoperable future in blockchain with identity becoming portable across applications and chains.
+
+This form of account abstraction is becoming more important for improving onchain user experiences, especially as consumer dApps become more prevalent. Applications in DeFi, gaming, AI and more can benefit from the digital identity solution by attracting a broader audience with barriers for joining and creating a wallet could be lowered to just an email address. 

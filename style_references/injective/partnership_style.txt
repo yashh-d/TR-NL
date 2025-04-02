@@ -1,0 +1,21 @@
+🥷What’s happening: Injective has had an eventful few weeks with a recent rebrand and launch of an AI Index Perpetual Market (AIX), which combines AI stocks like NVIDIA and Taiwan Semiconductor with crypto tokens like INJ and ai16z.
+
+🥷Why it matters: This index is listed on Injective’s decentralized exchange, Helix, and creates an institutional-grade investment product that’s accessible through its onchain rails, providing a decentralized trading experience.
+
+It can be seen as a “perfect marriage” between traditional AI investments for both crypto and TradFi investors, Injective CEO Eric Chen said on Talking Tokens podcast.
+
+This product comes at a time when institutions are seeking compliant ways to enter DeFi. Injective's RWA module allows customization for compliance parameters, making it attractive for institutional participation, while still maintaining decentralized benefits.
+
+It provides an RWA module “where you can customize the parameters for DeFi rails,” Injective’s Head of BD Mirza Uddin said on the podcast. “So you can add in KYC guards and say, ‘Hey I only want to trade with counterparties that have at least 100 million in AUM.’”
+
+With that said, Helix has already attracted many institutional market makers and liquidity providers such as IMC Trading, Pyth, Anti Capital, and Wormhole. The platform has processed over $45 billion in volume to date. The plan is to hit $45 billion in volume on a daily basis by the end of 2025, Chen said.
+
+The rebrand also transforms Injective from a trading platform into the first blockchain built specifically for finance. The upgraded Injective Hub V2 offers smoother onboarding and better analytics, while the new InjScan explorer adds smart contract and NFT features. These upgrades help Injective achieve its goal of letting anyone trade any financial asset 24/7, whether they're individual traders or large institutions.
+
+The platform's ability to combine traditional and crypto assets, along with its focus on regulatory compliance, creates a stronger bridge between TradFi and DeFi. This approach reduces common barriers to entry and allows users to access various financial products through a single platform.
+
+🥷 The bigger picture: Injective's recent developments align with the growing institutional interest in crypto, AI and DeFi. With PwC projecting the global AI market to reach $15.6 trillion by 2030, institutional investors are seeking exposure to this industry as well as DeFi. This positions Injective's platform and products like AIX as strong options for both institutional and retail investors.
+
+The rising demands of similar onchain tokenized products can also attract greater liquidity and users onto Injective. With the increasing interest from global financial institutions, there’s potential for the growth of tokenized assets on Injective's network and across the broader blockchain ecosystem.
+
+Injective's recent governance proposal, for an onchain TradFi Index, can also help connect the blockchain with traditional finance even further. The ecosystem’s goal of creating a compliant infrastructure opens the door for institutions to enter DeFi, making sophisticated financial products more accessible.

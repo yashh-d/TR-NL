@@ -1,0 +1,22 @@
+Inside the network
+⚡️ What we’re watching: Mezo Network recently partnered with Velar and Wormhole, independently, to expand bitcoin’s accessibility across the bitcoin DeFi (BTCfi) landscape. 
+
+⚡️ Why it matters: The network’s collaboration with Velar integrates Mezo’s bitcoin-backed stablecoin, MUSD, into Velar’s perpetual futures decentralized exchange (PerpDEX). This allows traders and liquidity providers on the platform to leverage their bitcoin to take loans at a fixed rate, alongside trading and earning yield simultaneously. 
+
+The integration with Velar’s PerpDEX introduces more optionality for bitcoin perpetual futures trading, powered by Mezo’s MUSD. This can attract seasoned DeFi participants and everyday bitcoin holders that are looking to unlock more asset value without selling it. In an industry with limited bitcoin-centric financial tools and fragmented liquidity, Mezo uses a fixed loan rate and stablecoin infrastructure to showcase that bitcoin can be more than just a store of value. 
+
+Separately, Mezo recently partnered with Wormhole to power interoperability across networks and increase the reach of BTCfi. 
+
+Wormhole facilitates asset transfers cross-chain, while Mezo increases the access point for its users by providing exposure for bitcoin to be used in “normal” use cases like loans. By integrating Wormhole, Mezo can extend the reach of MUSD beyond its native ecosystem, allowing users to potentially move bitcoin-backed value into other networks for trading, lending or earning yield. 
+
+The end goal from this partnership is to scale bitcoin’s capabilities and unlock its $1.66 trillion market cap. These partnerships would provide more access points for users to make the digital asset a working financial tool, while maintaining ownership. 
+
+⚡️ The bigger picture: In tandem, these two partnerships aim to address the limitations in BTCfi: fragmented liquidity and isolated systems. 
+
+For Velar, it would mean traders could tap into cross-chain assets in order to boost capital efficiency. For Wormhole, it would act as a way for users to trade bitcoin in a decentralized and more interoperable way.
+
+While there are many networks and protocols out there that aim to transform bitcoin into a working asset, Mezo hopes to stand out from the crowd.
+
+The network wants to build a foundation for BTCfi by providing a solution for fragmented liquidity with Velar’s trading infrastructure. Meanwhile, Mezo can break down isolated systems with Wormhole’s cross-chain capabilities. 
+
+As these partnerships roll out, Mezo can showcase a future where bitcoin is able to be seen beyond a store of value through versatile financial tools. As a result, it can set a new standard for what BTCfi can achieve.

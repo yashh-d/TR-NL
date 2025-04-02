@@ -1,0 +1,20 @@
+
+Highlighting some of the largest announcements from Injective. 
+
+Injective introduced iAssets, a solution aimed at improving composability and capital efficiency within decentralized markets.
+
+This onchain asset class is designed to improve liquidity options for users, while eliminating pre-funding requirements that might limit a trader’s ability to transact. Traditionally, accessing assets like gold or silver onchain required a user to lock up their funds. But with iAssets, traders can gain more flexibility and unlock DeFi opportunities such as hedging, lending and yield generation. 
+
+On day one of the release of iAssets, Injective deployed support for Nvidia’s stock NVDA as the first iAsset – seeing $10.3 million in trading volume in the first hours post-launch. This can be seen as a pivotal move in order to achieve the goal of more efficient capital markets, alongside mainstream big tech assets.
+
+Since iAssets leverages Injective’s infrastructure, it can provide more interoperable choices for onchain finance. By integrating with the network, its goal is to enable real-time price feeds for equities, as well as stablecoin-based trading pairs and shared liquidity across networks to respond to market demand.
+
+If this product can attract a diverse user base such as institutional traders, liquidity providers and developers, Injective can position itself as a key player in decentralized financial infrastructure. In turn, this can grow the chain’s market share in the decentralized derivatives and tokenization sectors to expand financial innovation. 
+
+Libre Capital expanded its institutional platform to the Injective network. 
+
+The fund issuance platform allows accredited investors to access tokenized versions of institutional-grade funds via blockchain technology. While Libre has already deployed to multiple networks, its expansion to Injective looks to leverage its RWA module so tokenized assets can be used within DeFi applications. 
+
+Libre lets asset managers like BlackRock and Brevan Howard access tokenized versions of private credit, hedge funds and money market products.  This is important because these funds can utilize additional financial avenues they might not have been able to access without the usage of blockchain technology. 
+
+Injective looks to accelerate the movement to bring real-world assets onto the blockchain by offering Libre’s institutional-grade tokenized funds to its ecosystem. As more capital flows into onchain finance and institutions explore blockchain-based financial products, initiatives like Libre and infrastructures like Injective can bridge the gap between DeFi and traditional finance.

@@ -1,0 +1,17 @@
+Injective’s TradFi index saw $11M in volume in first two hours post-launch
+
+The TradFi Index, which tracks hundreds of the largest publicly traded stocks, saw its trading volume spike out the gate, signaling strong demand for TradFi and DeFi fusion products onchain. The newly released index reached $11 million in volume, which is important because it demonstrates market enthusiasm for accessing traditional equities like Amazon, Microsoft, and Goldman Sachs in a decentralized, 24/7 environment. 
+
+This capital inflow helps bolster liquidity onchain and showcase Injective’s ability to tokenize financial instruments. For new users, robust inflows indicate a liquid market and allow them to enter or exit positions without impacting the price too heavily. This is valuable to have because the index is set up on a perpetual market structure, which is oftentimes a very risky and volatile way to trade. 
+
+The TradFi Index can be a good entry point for new users who might be hesitant to engage with tokenized digital assets due to volatility concerns. As Injective aims to attract both crypto natives and TradFi participants, this high-volume environment could reassure new users that they’re joining a platform with active engagement, not a speculative outlier.
+
+Injective deployed its Nivara Mainnet upgrade to create more opportunities for real-world assets (RWAs), tokenization and network capabilities. 
+
+The upgrade introduces an RWA oracle, which means the network can access real-time price updates and utilize a modernized RWA module architecture for greater access control. To expand on that, Injective’s updates to its authorization framework enhances governance and user compliance within the ecosystem. 
+
+The new RWA oracle system aims to enhance data accuracy for tokenized assets on the network. This could make Injective a more reliable foundation for institutions and dApps that need continuous real-time updates on assets.
+
+Furthemore, the Nivara upgrade also involved network integrations to broaden developer access. Injective received security updates across its various exchanges and bridges, aimed to provide greater reliability for DeFi purposes. Recently, Injective has made a push to integrate native Ethereum Virtual Machine (EVM) support and eliminate the need for third-party bridges and strengthen its interoperability with Ethereum-based dApps.
+
+By embedding EVM functionality directly into its core network, Injective removes external dependencies. In turn this could improve its performance and security. This integration could also broaden Injective’s developer community and make it easier for Ethereum-based projects to transition onto Injective, while ensuring compatibility with any Ethereum updates.
