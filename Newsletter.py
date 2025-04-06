@@ -890,6 +890,12 @@ with st.expander("Debug API Keys"):
     except Exception as e:
         st.error(f"Error checking secrets: {str(e)}")
 
+# Add this near the beginning of your app, after imports
+# Clear any old API keys from session state
+if "openai_api_key" in st.session_state:
+    # This is the old key name format, remove it
+    del st.session_state.openai_api_key
+
 with newsletter_tab:
     st.markdown(
         """
@@ -1521,7 +1527,7 @@ with image_tab:
                     
                     # Debug: Show a masked version of the key to verify it's being found
                     if openai_api_key:
-                        masked_key = openai_api_key[:8] + "..." + openai_api_key[-4:]
+                        masked_key = openai_api_key[:8] + "..." + openai_api_key[-4:] if len(openai_api_key) > 12 else "***"
                         st.write(f"Using API key: {masked_key}")
                     else:
                         st.error("OpenAI API key not found in environment or session state.")
