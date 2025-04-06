@@ -2040,6 +2040,67 @@ def generate_image_description_claude(image_url, api_key):
     except Exception as e:
         return f"Exception: {str(e)}"
 
+# Replace the DallEAPIWrapper with direct OpenAI API call
+def generate_image_dalle(prompt, api_key, size="1024x1024", quality="standard"):
+    try:
+        from openai import OpenAI
+        
+        # Initialize the client with the API key
+        client = OpenAI(api_key=api_key)
+        
+        # Generate the image
+        response = client.images.generate(
+            model="dall-e-3",
+            prompt=prompt,
+            n=1,
+            size=size,
+            quality=quality
+        )
+        
+        # Extract the image URL from the response
+        image_url = response.data[0].url
+        return image_url, None
+    except ImportError:
+        return None, "OpenAI Python package not installed. Please install it with 'pip install openai'."
+    except Exception as e:
+        return None, f"Error generating image: {str(e)}"
+
+# Then in your image generation code:
+with st.spinner("Generating image with DALL-E..."):
+    try:
+        # Get OpenAI API key from environment or session state
+        openai_api_key = os.environ.get("OPENAI_API_KEY", st.session_state.get("OPENAI_API_KEY", ""))
+        
+        if not openai_api_key:
+            st.error("OpenAI API key not set. Cannot generate images.")
+            st.info("Please set your OpenAI API key in the settings.")
+            st.stop()
+        
+        # Generate the image
+        image_url, error = generate_image_dalle(
+            prompt=st.session_state.generated_image_prompt,
+            api_key=openai_api_key,
+            size=image_size,
+            quality=image_quality
+        )
+        
+        if image_url:
+            # Store the URL in session state
+            st.session_state.generated_image_url = image_url
+            
+            # Display the image
+            st.markdown("### Generated Image")
+            st.image(image_url, caption="Generated cover image")
+            
+            # Download button
+            st.markdown(f"[Download Image]({image_url})")
+            
+            # Rest of your code...
+        else:
+            st.error(f"Failed to generate image: {error}")
+    except Exception as e:
+        st.error(f"Error generating image: {str(e)}")
+
 try:
     # Your existing code here
     pass  # Replace with actual code
