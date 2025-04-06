@@ -6,6 +6,23 @@ from supabase import create_client, Client  # Import Supabase client
 import json
 from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI
+from PIL import Image
+import io
+import base64
+import requests
+from langchain.chains import LLMChain
+from langchain_community.utilities.dalle_image_generator import DallEAPIWrapper
+from langchain_core.prompts import PromptTemplate
+from langchain_openai import OpenAI
+import pandas as pd
+import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+from sklearn.preprocessing import MinMaxScaler
+import imageio
+import numpy as np
+from scipy.interpolate import interp1d
+import math
 
 # Try to import Google Gemini, but silently handle if it's not available
 try:
@@ -534,6 +551,18 @@ title_generation_prompt = ChatPromptTemplate.from_messages([
     )
 ])
 
+# Update the image generation prompt for professional, impactful imagery
+image_generation_prompt = ChatPromptTemplate.from_messages([
+    (
+        "system",
+        "Create professional image prompts (15-25 words) for financial/tech publications like Bloomberg or The Times. Focus on 3-5 key elements maximum. Use clean, impactful imagery with strong visual hierarchy. Prefer abstract representations, data visualizations, or symbolic elements. Avoid text, faces, and cluttered scenes."
+    ),
+    (
+        "human",
+        "Newsletter topic: {newsletter_title}\nClient: {client_name}\n\nCreate a Bloomberg/Times-style image prompt (15-25 words) with only 3-5 key visual elements for a professional newsletter cover."
+    )
+])
+
 ################################
 # 5. CREATE LLM CHAINS
 ################################
@@ -797,8 +826,20 @@ st.markdown(hide_footer_style, unsafe_allow_html=True)
 
 st.title("Token Relations 📊 Newsletter")
 
-# Create tabs for Newsletter Generator, Bullet Point Generator, Tweet Generator, Title Generator, and Edit & Save
-newsletter_tab, bullet_points_tab, tweet_tab, title_tab, edit_save_tab = st.tabs(["Newsletter Generator", "Bullet Point Generator", "Tweet Generator", "Title Generator", "Edit & Save"])
+# Create tabs for Newsletter Generator, Bullet Point Generator, Tweet Generator, Title Generator, Cover Image, Graph Plotter, and Edit & Save
+newsletter_tab, bullet_points_tab, tweet_tab, title_tab, image_tab, graph_tab, edit_save_tab = st.tabs([
+    "Newsletter Generator", 
+    "Bullet Point Generator", 
+    "Tweet Generator", 
+    "Title Generator", 
+    "Cover Image", 
+    "Graph Plotter",
+    "Edit & Save"
+])
+
+# Set the OpenAI API key in session state at startup
+if "openai_api_key" not in st.session_state:
+    st.session_state.openai_api_key = "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"
 
 with newsletter_tab:
     st.markdown(
@@ -813,7 +854,7 @@ with newsletter_tab:
         **Step 7:** Apply style edits to the enhanced newsletter based on feedback.\n
         """
     )
-    
+
     # --- Client selection & loading client documentation ---
     selected_client = st.selectbox("Select a Client", list(CLIENT_FILES.keys()), key="newsletter_client")
     long_term_doc = ""
@@ -908,7 +949,7 @@ with newsletter_tab:
     
     if combined_instructions:
         st.success("Your tailoring instructions will be included in the generation process.")
-    
+
     # Initialize session state variables
     if 'key_points_output' not in st.session_state:
         st.session_state.key_points_output = ""
@@ -961,28 +1002,28 @@ with newsletter_tab:
                     st.warning("No Topic entered. Using a generic topic.")
                     topic = "Recent developments"
                 
-                st.session_state.step2_started = True
-                
-                with st.spinner("Generating newsletter draft..."):
-                    # Step 2a
-                    with st.spinner("Drafting 'What happened'..."):
-                        # Get additional instructions from session state if available
-                        additional_instr = st.session_state.get("additional_instructions", "")
-                        
-                        # Always include additional_instructions in run_params, even if empty
-                        run_params = {
-                            "newsletter_example": newsletter_example,
-                            "key_points": st.session_state.edited_key_points,
-                            "topic": topic,
-                            "additional_instructions": additional_instr  # Always include this parameter
-                        }
-                        
-                        what_happened_draft = chain_what_happened.run(**run_params)
-                    st.markdown("### Draft - What Happened")
-                    st.write(what_happened_draft)
+            st.session_state.step2_started = True
+            
+            with st.spinner("Generating newsletter draft..."):
+                # Step 2a
+                with st.spinner("Drafting 'What happened'..."):
+                    # Get additional instructions from session state if available
+                    additional_instr = st.session_state.get("additional_instructions", "")
                     
-                    # Step 2b
-                    with st.spinner("Drafting 'Why it matters'..."):
+                    # Always include additional_instructions in run_params, even if empty
+                    run_params = {
+                        "newsletter_example": newsletter_example,
+                        "key_points": st.session_state.edited_key_points,
+                        "topic": topic,
+                        "additional_instructions": additional_instr  # Always include this parameter
+                    }
+                    
+                    what_happened_draft = chain_what_happened.run(**run_params)
+            st.markdown("### Draft - What Happened")
+            st.write(what_happened_draft)
+
+            # Step 2b
+            with st.spinner("Drafting 'Why it matters'..."):
                         # Always include additional_instructions in run_params, even if empty
                         run_params = {
                             "newsletter_example": newsletter_example,
@@ -992,11 +1033,11 @@ with newsletter_tab:
                         }
                         
                         why_matters_draft = chain_why_matters.run(**run_params)
-                    st.markdown("### Draft - Why It Matters")
-                    st.write(why_matters_draft)
+            st.markdown("### Draft - Why It Matters")
+            st.write(why_matters_draft)
 
-                    # Step 2c (Combined Draft & Enhance 'Big Picture')
-                    with st.spinner("Drafting & Enhancing 'The big picture'..."):
+            # Step 2c (Combined Draft & Enhance 'Big Picture')
+            with st.spinner("Drafting & Enhancing 'The big picture'..."):
                         # Always include additional_instructions in run_params, even if empty
                         run_params = {
                             "newsletter_example": newsletter_example,
@@ -1007,55 +1048,55 @@ with newsletter_tab:
                         }
                         
                         big_picture_enhanced = chain_combined_big_picture.run(**run_params)
-                    st.markdown("### Draft + Enhanced - The Big Picture")
-                    st.write(big_picture_enhanced)
+            st.markdown("### Draft + Enhanced - The Big Picture")
+            st.write(big_picture_enhanced)
 
-                    newsletter_draft = (
-                        f"**What happened:**\n{what_happened_draft}\n\n"
-                        f"**Why does it matter:**\n{why_matters_draft}\n\n"
-                        f"**The big picture:**\n{big_picture_enhanced}" # Use enhanced big picture directly
-                    )
-                    st.markdown("### Combining Draft Newsletter")
-                    
+            newsletter_draft = (
+                f"**What happened:**\n{what_happened_draft}\n\n"
+                f"**Why does it matter:**\n{why_matters_draft}\n\n"
+                f"**The big picture:**\n{big_picture_enhanced}" # Use enhanced big picture directly
+            )
+            st.markdown("### Combining Draft Newsletter")
+            
 
-                    # Step 4
-                    with st.spinner("Step 4: Comparing writing style..."):
-                        style_comparison = chain_style.run(
-                            newsletter_example=newsletter_example,
-                            enhanced_newsletter=newsletter_draft # Compare against the combined draft newsletter now
-                        )
-                    st.markdown("### Style Comparison Feedback")
-                    st.write(style_comparison)
+            # Step 4
+            with st.spinner("Step 4: Comparing writing style..."):
+                style_comparison = chain_style.run(
+                    newsletter_example=newsletter_example,
+                    enhanced_newsletter=newsletter_draft # Compare against the combined draft newsletter now
+                )
+            st.markdown("### Style Comparison Feedback")
+            st.write(style_comparison)
 
-                    # Step 5
-                    with st.spinner("Step 5: Applying style edits..."):
+            # Step 5
+            with st.spinner("Step 5: Applying style edits..."):
                         newsletter_style_edited = chain_edit.run(
-                            style_comparison=style_comparison,
-                            newsletter_enhanced=newsletter_draft, # Pass the combined draft for style editing
-                            newsletter_example=newsletter_example
-                        )
-                    st.markdown("### Style Edited Newsletter")
-                    st.write(newsletter_style_edited)
-                    
-                    # Store the final newsletter in session state for use in Tweet generator
-                    st.session_state.final_newsletter = newsletter_style_edited
-                    
-                    # Generate title based on the newsletter content
-                    with st.spinner("Generating newsletter title..."):
-                        # Load title examples
-                        title_examples = load_title_examples()
-                        
-                        # Generate title
-                        generated_title = chain_title_generation.run(
-                            newsletter_content=newsletter_style_edited,
-                            title_examples=title_examples,
-                            client_name=selected_client
-                        )
-                        
-                        # Store and display the title
-                        st.session_state.newsletter_title = generated_title
-                        st.markdown("### Generated Newsletter Title")
-                        st.write(generated_title)
+                    style_comparison=style_comparison,
+                    newsletter_enhanced=newsletter_draft, # Pass the combined draft for style editing
+                    newsletter_example=newsletter_example
+                )
+            st.markdown("### Style Edited Newsletter")
+            st.write(newsletter_style_edited)
+            
+            # Store the final newsletter in session state for use in Tweet generator
+            st.session_state.final_newsletter = newsletter_style_edited
+            
+            # Generate title based on the newsletter content
+            with st.spinner("Generating newsletter title..."):
+                # Load title examples
+                title_examples = load_title_examples()
+                
+                # Generate title
+                generated_title = chain_title_generation.run(
+                    newsletter_content=newsletter_style_edited,
+                    title_examples=title_examples,
+                    client_name=selected_client
+                )
+                
+                # Store and display the title
+                st.session_state.newsletter_title = generated_title
+                st.markdown("### Generated Newsletter Title")
+                st.write(generated_title)
 
         else:
             st.error("Please select a Style Reference and enter a Topic.")
@@ -1080,14 +1121,8 @@ with bullet_points_tab:
         st.markdown("### Ecosystem Bullet Points")
         st.markdown("Generate bullet points related to technical developments, partnerships, protocol upgrades, and ecosystem growth.")
         
-        # Load ecosystem examples from global file
+        # Load ecosystem examples from global file but don't display them to the user
         default_ecosystem_examples = load_bullet_point_examples("Ecosystem")
-        
-        ecosystem_example = st.text_area(
-            "Ecosystem Bullet Point Examples",
-            value=default_ecosystem_examples,
-            height=200
-        )
         
         ecosystem_context = st.text_area(
             "Ecosystem Context Information", 
@@ -1099,7 +1134,7 @@ with bullet_points_tab:
                 with st.spinner("Generating ecosystem bullet points..."):
                     ecosystem_bullets = chain_ecosystem_bullet_point_prompt.run(
                         context_text=ecosystem_context,
-                        example_bullet_points=ecosystem_example
+                        example_bullet_points=default_ecosystem_examples  # Use the loaded examples directly
                     )
                 st.markdown("#### Generated Ecosystem Bullet Points")
                 st.write(ecosystem_bullets)
@@ -1114,14 +1149,10 @@ with bullet_points_tab:
         st.markdown("### Community Bullet Points")
         st.markdown("Generate bullet points related to community engagement, events, social metrics, and user adoption.")
         
-        # Load community examples from global file
+        # Load community examples from global file but don't display them to the user
         default_community_examples = load_bullet_point_examples("Community")
         
-        community_example = st.text_area(
-            "Community Bullet Point Examples",
-            value=default_community_examples,
-            height=200
-        )
+        # Remove the text area for examples
         
         community_context = st.text_area(
             "Community Context Information", 
@@ -1133,7 +1164,7 @@ with bullet_points_tab:
                 with st.spinner("Generating community bullet points..."):
                     community_bullets = chain_community_bullet_point_prompt.run(
                         context_text=community_context,
-                        example_bullet_points=community_example
+                        example_bullet_points=default_community_examples  # Use the loaded examples directly
                     )
                 st.markdown("#### Generated Community Bullet Points")
                 st.write(community_bullets)
@@ -1307,6 +1338,497 @@ with title_tab:
         else:
             st.error("Please provide newsletter content and select a client for the titles.")
 
+# New tab for image generation
+with image_tab:
+    st.title("Newsletter Cover Image Generator")
+    st.markdown("Generate a cover image for your newsletter based on its content.")
+    
+    # Client selection for image
+    selected_image_client = st.selectbox("Select a Client", list(CLIENT_FILES.keys()), key="image_client")
+    
+    # Option to use generated newsletter or custom input
+    use_newsletter_for_image = st.checkbox("Use Generated Newsletter Content", value=True, key="use_newsletter_image")
+    
+    # Initialize session state variables if they don't exist
+    if "image_content" not in st.session_state:
+        st.session_state.image_content = ""
+    if "image_title" not in st.session_state:
+        st.session_state.image_title = ""
+    
+    # Get content based on checkbox selection
+    if use_newsletter_for_image:
+        if st.session_state.final_newsletter:
+            st.session_state.image_content = st.session_state.final_newsletter
+            st.session_state.image_title = st.session_state.newsletter_title if st.session_state.newsletter_title else "Newsletter"
+            st.success("Using the generated newsletter content and title")
+        else:
+            st.warning("No newsletter has been generated yet. Please generate a newsletter first or uncheck to enter custom content.")
+    
+    # Custom content input if not using newsletter or if no newsletter is available
+    if not use_newsletter_for_image or not st.session_state.image_content:
+        content_input = st.text_area(
+            "Enter Newsletter Content for Image Generation", 
+            value=st.session_state.image_content,
+            height=200
+        )
+        title_input = st.text_input(
+            "Enter Newsletter Title", 
+            value=st.session_state.image_title if st.session_state.image_title else "Newsletter"
+        )
+        
+        # Update session state with user input
+        st.session_state.image_content = content_input
+        st.session_state.image_title = title_input
+    
+    # Image style options
+    st.markdown("### Image Style Options")
+    image_size = st.selectbox(
+        "Image Size", 
+        ["1024x1024", "1024x1792", "1792x1024"],
+        index=0,
+        key="image_size_select"
+    )
+    
+    image_quality = st.selectbox(
+        "Image Quality", 
+        ["standard", "hd"],
+        index=0,
+        key="image_quality_select"
+    )
+    
+    # One-shot generate button
+    if st.button("Generate Cover Image", key="gen_cover_image"):
+        if st.session_state.image_content and selected_image_client:
+            # Step 1: Generate the image prompt
+            with st.spinner("Generating image prompt..."):
+                # Use the selected model from session state, or fall back to anthropic_llm
+                llm = st.session_state.get("llm", anthropic_llm)
+                chain_image_generation = LLMChain(llm=llm, prompt=image_generation_prompt)
+                
+                generated_prompt = chain_image_generation.run(
+                    newsletter_content=st.session_state.image_content,
+                    newsletter_title=st.session_state.image_title,
+                    client_name=selected_image_client
+                )
+                
+                # Store the generated prompt in session state
+                st.session_state.generated_image_prompt = generated_prompt
+            
+            # Display the generated prompt
+            st.markdown("### Generated Image Prompt")
+            st.write(st.session_state.generated_image_prompt)
+            
+            # Step 2: Generate the image using LangChain's DallEAPIWrapper
+            with st.spinner("Generating image with DALL-E..."):
+                try:
+                    # Get OpenAI API key from session state
+                    openai_api_key = st.session_state.get("openai_api_key", "")
+                    
+                    # Set the API key in the environment
+                    os.environ["OPENAI_API_KEY"] = openai_api_key
+                    
+                    # Initialize the DALL-E wrapper (it gets the API key from environment)
+                    dalle = DallEAPIWrapper()
+                    
+                    # Generate the image
+                    image_url = dalle.run(st.session_state.generated_image_prompt)
+                    
+                    # Store the URL in session state
+                    st.session_state.generated_image_url = image_url
+                    
+                    # Display the image
+                    st.markdown("### Generated Image")
+                    st.image(image_url, caption="Generated cover image")
+                    
+                    # Download button
+                    st.markdown(f"[Download Image]({image_url})")
+                    
+                    # Image analysis option
+                    with st.expander("Image Analysis"):
+                        st.markdown("### Image Analysis")
+                        if st.button("Analyze Image", key="analyze_image_button"):
+                            with st.spinner("Analyzing image with Claude Vision..."):
+                                image_description = generate_image_description_claude(
+                                    image_url=image_url,
+                                    api_key=api_key
+                                )
+                                st.write(image_description)
+                except Exception as e:
+                    st.error(f"Error generating image: {str(e)}")
+                    st.info("Make sure your OpenAI API key is set correctly and has access to DALL-E 3.")
+        else:
+            st.error("Please provide newsletter content and select a client for the image.")
+    
+    # Display previously generated image if available
+    elif "generated_image_url" in st.session_state:
+        st.markdown("### Previously Generated Image")
+        st.image(st.session_state.generated_image_url, caption="Generated cover image")
+        
+        if "generated_image_prompt" in st.session_state:
+            with st.expander("View Image Prompt"):
+                st.write(st.session_state.generated_image_prompt)
+
+# New tab for graph plotting
+with graph_tab:
+    st.title("Animated and Static Graph Plotter")
+    st.markdown("Generate custom graphs from CSV data with animation support.")
+    
+    # Add custom CSS for the graph tab
+    st.markdown("""
+    <style>
+        .main-title {
+            font-size: 42px !important;
+            font-weight: bold;
+            margin-bottom: 0px !important;
+            padding-bottom: 0px !important;
+        }
+        .section-header {
+            font-size: 24px !important;
+            font-weight: bold;
+            margin-top: 10px !important;
+            margin-bottom: 5px !important;
+            padding-top: 10px !important;
+            padding-bottom: 0px !important;
+        }
+        .subsection-header {
+            font-size: 20px !important;
+            font-weight: bold;
+            margin-top: 5px !important;
+            margin-bottom: 0px !important;
+            padding-top: 5px !important;
+            padding-bottom: 0px !important;
+        }
+        /* Reduce spacing between elements */
+        .stSlider, .stCheckbox, .stRadio, .stSelectbox {
+            margin-top: 0px !important;
+            margin-bottom: 0px !important;
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Add the format_y_tick function
+    def format_y_tick(value, pos, use_dollar=False):
+        """Format y-axis ticks with K, M, B suffixes and optional dollar sign."""
+        if value == 0:
+            return '$0' if use_dollar else '0'
+        magnitude = 0
+        while abs(value) >= 1000:
+            magnitude += 1
+            value /= 1000.0
+        prefix = '$' if use_dollar else ''
+        return f'{prefix}{value:.1f}{["", "K", "M", "B", "T"][magnitude]}'
+    
+    # Add the save_frames_as_gif function
+    def save_frames_as_gif(fig, frames, speed, width=1200, height=800):
+        images = []
+        try:
+            for frame in frames:
+                fig.update(data=frame.data)
+                img_bytes = fig.to_image(format="png", width=width, height=height, scale=1.0)
+                img_array = imageio.imread(io.BytesIO(img_bytes))
+                images.append(img_array)
+            
+            gif_buffer = io.BytesIO()
+            imageio.mimsave(gif_buffer, images, format='gif', duration=speed, loop=0)
+            gif_buffer.seek(0)
+            return gif_buffer
+        except Exception as e:
+            st.error(f"Error creating GIF: {str(e)}")
+            return None
+    
+    # Add the normalize_data function
+    def normalize_data(data):
+        scaler = MinMaxScaler()
+        return scaler.fit_transform(data)
+    
+    # Modified file upload section to handle multiple CSVs
+    num_files = st.number_input("Number of CSV files to upload", min_value=1, max_value=10, value=1)
+    uploaded_files = []
+    dataframes = []
+    file_names = []
+    
+    # First, collect all files
+    for i in range(num_files):
+        file = st.file_uploader(f"Upload CSV #{i+1}", type=["csv"], key=f"graph_file_{i}")
+        if file:
+            uploaded_files.append(file)
+            try:
+                # Read with pandas explicitly specifying encoding
+                df = pd.read_csv(file, encoding='utf-8-sig')
+                
+                # Debug information
+                st.write(f"File {i+1} columns: {df.columns.tolist()}")
+                st.write(f"First few rows:")
+                st.write(df.head())
+                
+                # Store in dataframes list
+                dataframes.append(df)
+                file_names.append(file.name)
+            except Exception as e:
+                st.error(f"Error reading file #{i+1}: {str(e)}")
+    
+    # Add logo and theme options
+    logo_file = st.file_uploader("Upload a Logo (Optional, PNG/JPG)", type=["png", "jpg", "jpeg"], key="graph_logo")
+    theme = st.radio("Select Theme", ["dark", "light"], index=0, key="graph_theme")
+    
+    # Add text formatting options
+    st.markdown('<p class="section-header">Text Formatting</p>', unsafe_allow_html=True)
+    title_size = st.slider("Title Font Size", 10, 36, 18, 1, key="graph_title_size")
+    axis_label_size = st.slider("Axis Label Font Size", 8, 24, 14, 1, key="graph_axis_label_size")
+    tick_label_size = st.slider("Tick Label Font Size", 8, 20, 12, 1, key="graph_tick_label_size")
+    legend_font_size = st.slider("Legend Font Size", 8, 20, 10, 1, key="graph_legend_font_size")
+    
+    # Add animation and logo options
+    animation_speed = st.slider("Select Animation Speed (seconds per frame)", 0.05, 1.0, 0.1, 0.05, key="graph_animation_speed")
+    logo_x = st.slider("Logo X Position", 0.0, 1.0, 0.95, 0.01, key="graph_logo_x")
+    logo_y = st.slider("Logo Y Position", 0.0, 1.0, 0.05, 0.01, key="graph_logo_y")
+    
+    # Add legend options
+    show_legend = st.checkbox("Show Legend", value=True, key="graph_show_legend")
+    legend_x = st.slider("Legend X Position", 0.0, 1.0, 0.9, 0.01, key="graph_legend_x")
+    legend_y = st.slider("Legend Y Position", 0.0, 1.0, 0.9, 0.01, key="graph_legend_y")
+    
+    # Add title and subtitle options
+    st.markdown('<p class="section-header">Title and Subtitle</p>', unsafe_allow_html=True)
+    custom_title = st.text_input("Graph Title", "Blockchain Comparison", key="graph_custom_title")
+    custom_subtitle = st.text_input("Graph Subtitle (Optional)", "", key="graph_custom_subtitle")
+    subtitle_size = st.slider("Subtitle Font Size", 8, 24, 14, 1, key="graph_subtitle_size")
+    
+    # Add graph type selection
+    graph_type = st.radio("Select Graph Type", ["Line", "Bar"], index=0, key="graph_type")
+    
+    # Now process the dataframes if we have any
+    if len(dataframes) > 0:
+        try:
+            # Create a container for date column selection
+            date_cols = {}
+            st.markdown('<p class="subsection-header">Date Column Selection</p>', unsafe_allow_html=True)
+            
+            # Process each dataframe
+            for i, df in enumerate(dataframes):
+                date_cols[i] = st.selectbox(f"Select date column for {file_names[i]}", 
+                                          df.columns, key=f"graph_date_col_{i}")
+                
+                # Convert date column to datetime
+                dataframes[i][date_cols[i]] = pd.to_datetime(dataframes[i][date_cols[i]], errors="coerce")
+                
+                # Convert numeric columns after date column is selected
+                for col in df.columns:
+                    # Skip date column
+                    if col != date_cols[i]:
+                        # Try to convert to numeric, replacing commas
+                        try:
+                            # First remove commas and convert to numeric
+                            dataframes[i][col] = dataframes[i][col].astype(str).str.replace(',', '').astype(float)
+                            st.success(f"Converted column {col} to numeric")
+                        except Exception as e:
+                            # If conversion fails, it might not be a numeric column
+                            pass
+                
+                # Sort the dataframe by the selected date column
+                dataframes[i] = dataframes[i].sort_values(by=date_cols[i])
+                st.success(f"Data in {file_names[i]} sorted by {date_cols[i]}")
+                
+                # Show the date range
+                min_date = dataframes[i][date_cols[i]].min()
+                max_date = dataframes[i][date_cols[i]].max()
+                st.info(f"Date range: {min_date} to {max_date}")
+                
+                # After showing the date range, add date range filter
+                if st.checkbox(f"Filter date range for {file_names[i]}", key=f"graph_date_filter_{i}"):
+                    # Create date range selector
+                    date_range = st.date_input(
+                        f"Select date range for {file_names[i]}",
+                        value=(min_date.date(), max_date.date()),
+                        min_value=min_date.date(),
+                        max_value=max_date.date(),
+                        key=f"graph_date_range_{i}"
+                    )
+                    
+                    # Apply date filter if a range is selected
+                    if len(date_range) == 2:
+                        start_date, end_date = date_range
+                        dataframes[i] = dataframes[i][
+                            (dataframes[i][date_cols[i]].dt.date >= start_date) & 
+                            (dataframes[i][date_cols[i]].dt.date <= end_date)
+                        ]
+                        st.success(f"Applied date filter: {start_date} to {end_date}")
+            
+            # Add segmentation options
+            segment_data = {}
+            segment_columns = {}
+            segment_values = {}
+            
+            st.markdown('<p class="subsection-header">Data Segmentation</p>', unsafe_allow_html=True)
+            for i, df in enumerate(dataframes):
+                if st.checkbox(f"Segment data in {file_names[i]}", key=f"graph_segment_{i}"):
+                    # Get string columns (object type)
+                    string_cols = df.select_dtypes(include=['object']).columns.tolist()
+                    if string_cols:
+                        # Let user select which column to use for segmentation
+                        segment_columns[i] = st.selectbox(
+                            f"Select column to segment by in {file_names[i]}", 
+                            string_cols,
+                            key=f"graph_segment_col_{i}"
+                        )
+                        
+                        # Get unique values in the selected column
+                        unique_values = df[segment_columns[i]].unique().tolist()
+                        
+                        # Let user select which values to include
+                        segment_values[i] = st.multiselect(
+                            f"Select values to include from {segment_columns[i]} in {file_names[i]}", 
+                            unique_values,
+                            default=unique_values[:min(3, len(unique_values))],  # Default to first 3 values
+                            key=f"graph_segment_values_{i}"
+                        )
+                        
+                        # Create segmented dataframes
+                        segment_data[i] = {}
+                        for value in segment_values[i]:
+                            segment_data[i][value] = df[df[segment_columns[i]] == value].copy()
+                            
+                        # Display segmented data in tabs
+                        segment_tabs = st.tabs([f"{value}" for value in segment_values[i]])
+                        for j, (value, tab) in enumerate(zip(segment_values[i], segment_tabs)):
+                            with tab:
+                                st.write(f"Data for {segment_columns[i]} = {value}")
+                                st.dataframe(segment_data[i][value])
+                    else:
+                        st.warning(f"No string columns found in {file_names[i]} for segmentation")
+            
+            # Create sliders for row ranges for each dataframe
+            row_ranges = {}
+            st.markdown('<p class="subsection-header">Row Range Selection</p>', unsafe_allow_html=True)
+            for i, df in enumerate(dataframes):
+                row_ranges[i] = st.slider(f"Row range for {file_names[i]}", 
+                                         0, len(df) - 1, 
+                                         (0, min(50, len(df) - 1)), 
+                                         key=f"graph_row_range_{i}")
+            
+            # Create sub-dataframes based on selected row ranges
+            sub_dfs = {}
+            for i, df in enumerate(dataframes):
+                rs, re = row_ranges[i]
+                # If segmentation is active for this dataframe, use the segmented data
+                if i in segment_data:
+                    # Create a combined dataframe with all selected segments
+                    combined_segments = pd.DataFrame()
+                    for value in segment_values[i]:
+                        segment_df = segment_data[i][value]
+                        # Apply row range to segmented data
+                        segment_df = segment_df.iloc[min(rs, len(segment_df)-1):min(re+1, len(segment_df))]
+                        # Add a new column to identify the segment
+                        segment_df = segment_df.copy()
+                        segment_df[f'_segment_{segment_columns[i]}'] = value
+                        combined_segments = pd.concat([combined_segments, segment_df])
+                    
+                    sub_dfs[i] = combined_segments
+                else:
+                    # Use the original dataframe with row range
+                    sub_dfs[i] = df.iloc[rs:re + 1].copy()
+            
+            # Display the sub-dataframes in tabs
+            tabs = st.tabs([f"Data {i+1}: {name}" for i, name in enumerate(file_names)])
+            for i, tab in enumerate(tabs):
+                with tab:
+                    st.dataframe(sub_dfs[i])
+            
+            # Column selection for each dataframe
+            st.markdown('<p class="subsection-header">Column Selection</p>', unsafe_allow_html=True)
+            y_cols_by_file = {}
+            for i, df in enumerate(sub_dfs.values()):
+                numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
+                y_cols_by_file[i] = st.multiselect(f"Select numeric columns to plot from {file_names[i]}", 
+                                                  numeric_cols, 
+                                                  key=f"graph_y_cols_{i}")
+            
+            # Check if any columns are selected
+            any_cols_selected = any(len(cols) > 0 for cols in y_cols_by_file.values())
+            
+            if any_cols_selected:
+                normalize = st.checkbox("Normalize Values", value=False, key="graph_normalize")
+                format_numbers = st.checkbox("Format Y-axis (1K, 1M, 1B)", value=False, key="graph_format_numbers")
+                use_dollar = st.checkbox("Add Dollar Sign ($) to Y-axis", value=False, key="graph_use_dollar")
+                
+                # Color picker for each selected column in each file
+                colors = {}
+                st.markdown('<p class="section-header">Color Selection</p>', unsafe_allow_html=True)
+                for file_idx, cols in y_cols_by_file.items():
+                    for col in cols:
+                        # If segmentation is active, create color pickers for each segment
+                        if file_idx in segment_data:
+                            for value in segment_values[file_idx]:
+                                color_key = f"{file_idx}_{col}_{value}"
+                                colors[color_key] = st.color_picker(
+                                    f"Pick color for {file_names[file_idx]} - {col} - {value}", 
+                                    "#" + ''.join([hex(hash(color_key + str(i)) % 256)[2:].zfill(2) for i in range(3)]),
+                                    key=f"graph_color_{color_key}"
+                                )
+                        else:
+                            color_key = f"{file_idx}_{col}"
+                            colors[color_key] = st.color_picker(
+                                f"Pick color for {file_names[file_idx]} - {col}", 
+                                "#" + ''.join([hex(hash(color_key + str(i)) % 256)[2:].zfill(2) for i in range(3)]),
+                                key=f"graph_color_{color_key}"
+                            )
+                
+                # Custom legend labels section
+                use_custom_labels = st.checkbox("Use Custom Legend Labels", value=False, key="graph_use_custom_labels")
+                legend_labels = {}
+                if use_custom_labels:
+                    st.write("Enter custom legend labels:")
+                    for file_idx, cols in y_cols_by_file.items():
+                        for col in cols:
+                            # If segmentation is active, create label inputs for each segment
+                            if file_idx in segment_data:
+                                for value in segment_values[file_idx]:
+                                    label_key = f"{file_idx}_{col}_{value}"
+                                    legend_labels[label_key] = st.text_input(
+                                        f"Custom label for {file_names[file_idx]} - {col} - {value}", 
+                                        value=f"{file_names[file_idx]}: {col} ({value})",
+                                        key=f"graph_label_{label_key}"
+                                    )
+                            else:
+                                label_key = f"{file_idx}_{col}"
+                                legend_labels[label_key] = st.text_input(
+                                    f"Custom label for {file_names[file_idx]} - {col}", 
+                                    value=f"{file_names[file_idx]}: {col}",
+                                    key=f"graph_label_{label_key}"
+                                )
+                
+                custom_xaxis_title = st.text_input("Enter the X-axis title", "Date", key="graph_xaxis_title")
+                
+                y_axis_title_default = "Normalized Values" if normalize else "Values"
+                if use_dollar and not normalize:
+                    y_axis_title_default = "Dollar Values"
+                custom_yaxis_title = st.text_input("Enter the Y-axis title", y_axis_title_default, key="graph_yaxis_title")
+                
+                # Normalize data if requested
+                if normalize:
+                    for file_idx, df in sub_dfs.items():
+                        if y_cols_by_file[file_idx]:
+                            sub_dfs[file_idx][y_cols_by_file[file_idx]] = normalize_data(df[y_cols_by_file[file_idx]])
+                
+                # Buttons for generating graphs
+                col1, col2 = st.columns(2)
+                with col1:
+                    generate_static = st.button("Generate Static Graph", key="graph_generate_static")
+                with col2:
+                    generate_animated = st.button("Generate Animated Graph", key="graph_generate_animated")
+                
+                # Generate graphs based on button clicks
+                if generate_static or generate_animated:
+                    st.write("Generating graph... Please wait.")
+                    # Add your graph generation code here
+                    # This would be a simplified version of the graph generation code from stre.py
+        
+        except Exception as e:
+            st.error(f"Error processing data: {str(e)}")
+            st.write("Please check your data and try again.")
+
 # New tab for editing and saving the newsletter
 with edit_save_tab:
     st.title("Edit & Save Newsletter")
@@ -1453,3 +1975,55 @@ with edit_save_tab:
                 st.markdown(f"**{len(finetuning_data)} newsletters** ready for fine-tuning")
                 with st.expander("Preview Fine-tuning Data"):
                     st.json(finetuning_data[:2] if len(finetuning_data) > 2 else finetuning_data)
+
+# Function to generate image description using Anthropic Claude 3 Sonnet Vision
+def generate_image_description_claude(image_url, api_key):
+    headers = {
+        "x-api-key": api_key,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json"
+    }
+    
+    try:
+        response = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers=headers,
+            json={
+                "model": "claude-3-7-sonnet-latest",
+                "max_tokens": 300,
+                "messages": [
+                    {
+                        "role": "user", 
+                        "content": [
+                            {
+                                "type": "image",
+                                "source": {
+                                    "type": "url",
+                                    "url": image_url
+                                }
+                            },
+                            {
+                                "type": "text",
+                                "text": "Describe this image in detail, focusing on its composition, colors, style, and how well it would work as a newsletter cover image. What emotions or themes does it convey?"
+                            }
+                        ]
+                    }
+                ]
+            }
+        )
+        
+        if response.status_code == 200:
+            return response.json()["content"][0]["text"]
+        else:
+            return f"Error: {response.status_code} - {response.text}"
+    except Exception as e:
+        return f"Exception: {str(e)}"
+
+try:
+    # Your existing code here
+    pass  # Replace with actual code
+except Exception as e:
+    st.error(f"An error occurred: {str(e)}")
+    st.write("Please check the logs for more details.")
+    import traceback
+    st.code(traceback.format_exc())

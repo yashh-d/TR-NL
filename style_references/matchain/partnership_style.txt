@@ -1,21 +1,25 @@
-🥷What’s happening: Injective has had an eventful few weeks with a recent rebrand and launch of an AI Index Perpetual Market (AIX), which combines AI stocks like NVIDIA and Taiwan Semiconductor with crypto tokens like INJ and ai16z.
+🔥What we’re watching: Tokenization is a hot topic across web3, but the opportunity to tokenize fan experiences has just begun, according to panelists on Token Relations quarterly webinar with Matchain.  
 
-🥷Why it matters: This index is listed on Injective’s decentralized exchange, Helix, and creates an institutional-grade investment product that’s accessible through its onchain rails, providing a decentralized trading experience.
+🔥Why it matters: In recent months, Matchain joined forces with Paris Saint-Germain F.C. to bring its fans onchain through web3 experiences, alongside its Joint Innovation Studio (JIS). 
 
-It can be seen as a “perfect marriage” between traditional AI investments for both crypto and TradFi investors, Injective CEO Eric Chen said on Talking Tokens podcast.
+“It's not just about partnerships, but unlocking solutions and benefits,” Petrix Barbosa, CEO of Matchain said on the webinar. “Once we see the benefits unlocked to fans it can be replicated anywhere.”
 
-This product comes at a time when institutions are seeking compliant ways to enter DeFi. Injective's RWA module allows customization for compliance parameters, making it attractive for institutional participation, while still maintaining decentralized benefits.
+When it comes to tokenization of fans, they are a representation of “something that is valuable,”  PSG’s Head of PSG Labs Pär Helgosson said on the call. That value is more effective when it's captured, analyzed and “managed.”
 
-It provides an RWA module “where you can customize the parameters for DeFi rails,” Injective’s Head of BD Mirza Uddin said on the podcast. “So you can add in KYC guards and say, ‘Hey I only want to trade with counterparties that have at least 100 million in AUM.’”
+“When it comes to fan data, consumption and merchandise — it will be tokenized,” Helgosson added. “We believe that as a club as well.”
 
-With that said, Helix has already attracted many institutional market makers and liquidity providers such as IMC Trading, Pyth, Anti Capital, and Wormhole. The platform has processed over $45 billion in volume to date. The plan is to hit $45 billion in volume on a daily basis by the end of 2025, Chen said.
+The adoption of web3 technology won’t happen overnight, Helgosson noted. “If you look at our 100s of millions of fans, they need to be engaged and captured where they're at. Not everyone is going to pour into web3 this year or next, it will take time."
 
-The rebrand also transforms Injective from a trading platform into the first blockchain built specifically for finance. The upgraded Injective Hub V2 offers smoother onboarding and better analytics, while the new InjScan explorer adds smart contract and NFT features. These upgrades help Injective achieve its goal of letting anyone trade any financial asset 24/7, whether they're individual traders or large institutions.
+But as the maturity of fans and its ecosystem increases, so will the level of tokenization, Helgosson and Barbosa concurred. 
 
-The platform's ability to combine traditional and crypto assets, along with its focus on regulatory compliance, creates a stronger bridge between TradFi and DeFi. This approach reduces common barriers to entry and allows users to access various financial products through a single platform.
+As of today, fan data is siloed and hard to track, Helgosson noted. But once its tokenized and decentralized identities (DIDs)  are accounted for, clubs like PSG can start rewarding accounts based on behavior and consumption, he added. 
 
-🥷 The bigger picture: Injective's recent developments align with the growing institutional interest in crypto, AI and DeFi. With PwC projecting the global AI market to reach $15.6 trillion by 2030, institutional investors are seeking exposure to this industry as well as DeFi. This positions Injective's platform and products like AIX as strong options for both institutional and retail investors.
+“All of our collectibles moving forward will be tokenized, fungible or not,” Helgosson said. Soon PSG’s partnerships and sponsors will also think about tokenizing assets, too, he added. 
 
-The rising demands of similar onchain tokenized products can also attract greater liquidity and users onto Injective. With the increasing interest from global financial institutions, there’s potential for the growth of tokenized assets on Injective's network and across the broader blockchain ecosystem.
+"Sometimes we get lost in [whether] it's about web3 versus it's about the fan,” Helgosson said. “In our world, it's about the fan. It's about providing cool, lovely, easy to use [apps] versus what hasn't been reached before.”
 
-Injective's recent governance proposal, for an onchain TradFi Index, can also help connect the blockchain with traditional finance even further. The ecosystem’s goal of creating a compliant infrastructure opens the door for institutions to enter DeFi, making sophisticated financial products more accessible.
+🔥The bigger picture: PSG has a global audience with about 92% of its fans outside of its homebase of France and about 82% under 34 years old, Helgosson said. 
+
+By integrating with Matchain and blockchain technology, this can create experiences that help connect fans around the world. It can also reward the loyalty and support to those that interact digitally as well as in person. Matchain can help to facilitate these tokenized experiences across a variety of sectors and areas, with entertainment and brands like PSG at the forefront. 
+
+"Groups with major fan bases need to start thinking about [integrating] blockchains," Barbosa said. "It's inevitable."
