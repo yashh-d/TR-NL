@@ -857,6 +857,39 @@ except Exception as e:
     # Catch any other unexpected errors
     st.error(f"Error checking for OpenAI API key: {str(e)}")
 
+# Add this near the top of your app, after the imports
+# Debug section to check API keys
+with st.expander("Debug API Keys"):
+    st.write("Checking API keys...")
+    
+    # Check OpenAI API key
+    openai_key = os.environ.get("OPENAI_API_KEY", "")
+    if not openai_key:
+        openai_key = st.session_state.get("OPENAI_API_KEY", "")
+    
+    if openai_key:
+        st.success("OpenAI API key found!")
+        # Show first few and last few characters
+        masked_key = openai_key[:4] + "..." + openai_key[-4:]
+        st.write(f"OpenAI API key: {masked_key}")
+    else:
+        st.error("OpenAI API key not found!")
+    
+    # Check if secrets are accessible
+    try:
+        has_secrets = hasattr(st, "secrets")
+        st.write(f"Has secrets attribute: {has_secrets}")
+        
+        if has_secrets:
+            has_openai_section = "openai" in st.secrets
+            st.write(f"Has OpenAI section in secrets: {has_openai_section}")
+            
+            if has_openai_section:
+                has_api_key = "api_key" in st.secrets.openai
+                st.write(f"Has API key in OpenAI section: {has_api_key}")
+    except Exception as e:
+        st.error(f"Error checking secrets: {str(e)}")
+
 with newsletter_tab:
     st.markdown(
         """
@@ -1434,46 +1467,55 @@ with image_tab:
             st.markdown("### Generated Image Prompt")
             st.write(st.session_state.generated_image_prompt)
             
-            # Step 2: Generate the image using LangChain's DallEAPIWrapper
+            # Step 2: Generate the image using OpenAI API directly
             with st.spinner("Generating image with DALL-E..."):
                 try:
                     # Get OpenAI API key from environment or session state
-                    openai_api_key = os.environ.get("OPENAI_API_KEY", st.session_state.get("OPENAI_API_KEY", ""))
+                    openai_api_key = os.environ.get("OPENAI_API_KEY", "")
                     
+                    # If not in environment, try to get from session state
                     if not openai_api_key:
-                        st.error("OpenAI API key not set. Cannot generate images.")
-                        st.info("Please set your OpenAI API key in the settings.")
+                        openai_api_key = st.session_state.get("OPENAI_API_KEY", "")
+                    
+                    # Debug: Show a masked version of the key to verify it's being found
+                    if openai_api_key:
+                        masked_key = openai_api_key[:8] + "..." + openai_api_key[-4:]
+                        st.write(f"Using API key: {masked_key}")
+                    else:
+                        st.error("OpenAI API key not found in environment or session state.")
                         st.stop()
                     
-                    # Set the API key in the environment
-                    os.environ["OPENAI_API_KEY"] = openai_api_key
-                    
-                    # Initialize the DALL-E wrapper (it gets the API key from environment)
-                    dalle = DallEAPIWrapper()
-                    
                     # Generate the image
-                    image_url = dalle.run(st.session_state.generated_image_prompt)
+                    image_url, error = generate_image_dalle(
+                        prompt=st.session_state.generated_image_prompt,
+                        api_key=openai_api_key,
+                        size=image_size,
+                        quality=image_quality
+                    )
                     
-                    # Store the URL in session state
-                    st.session_state.generated_image_url = image_url
-                    
-                    # Display the image
-                    st.markdown("### Generated Image")
-                    st.image(image_url, caption="Generated cover image")
-                    
-                    # Download button
-                    st.markdown(f"[Download Image]({image_url})")
-                    
-                    # Image analysis option
-                    with st.expander("Image Analysis"):
-                        st.markdown("### Image Analysis")
-                        if st.button("Analyze Image", key="analyze_image_button"):
-                            with st.spinner("Analyzing image with Claude Vision..."):
-                                image_description = generate_image_description_claude(
-                                    image_url=image_url,
-                                    api_key=api_key
-                                )
-                                st.write(image_description)
+                    if image_url:
+                        # Store the URL in session state
+                        st.session_state.generated_image_url = image_url
+                        
+                        # Display the image
+                        st.markdown("### Generated Image")
+                        st.image(image_url, caption="Generated cover image")
+                        
+                        # Download button
+                        st.markdown(f"[Download Image]({image_url})")
+                        
+                        # Image analysis option
+                        with st.expander("Image Analysis"):
+                            st.markdown("### Image Analysis")
+                            if st.button("Analyze Image", key="analyze_image_button"):
+                                with st.spinner("Analyzing image with Claude Vision..."):
+                                    image_description = generate_image_description_claude(
+                                        image_url=image_url,
+                                        api_key=api_key
+                                    )
+                                    st.write(image_description)
+                    else:
+                        st.error(f"Failed to generate image: {error}")
                 except Exception as e:
                     st.error(f"Error generating image: {str(e)}")
                     st.info("Make sure your OpenAI API key is set correctly and has access to DALL-E 3.")
