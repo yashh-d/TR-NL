@@ -273,27 +273,7 @@ def initialize_llm(model_key):
         
         elif provider == "openai":
             # Check for OpenAI API key
-            openai_api_key = ""
-            try:
-                openai_api_key = st.secrets.get("openai", {}).get("api_key", "")
-            except (FileNotFoundError, Exception):
-                # Secrets file not found - this is expected in some environments
-                pass
-            
-            if not openai_api_key:
-                openai_api_key = os.environ.get("OPENAI_API_KEY", "")
-            
-            if not openai_api_key:
-                openai_api_key = st.session_state.get("openai_api_key", "")
-            
-            if not openai_api_key:
-                with st.expander("Set OpenAI API Key"):
-                    openai_api_key = st.text_input("OpenAI API Key", type="password", key="openai_api_key_input")
-                    if st.button("Save OpenAI Key"):
-                        if openai_api_key:
-                            st.session_state.openai_api_key = openai_api_key
-                            st.success("OpenAI API key saved for this session!")
-                            st.experimental_rerun()
+            openai_api_key = os.environ.get("OPENAI_API_KEY", st.session_state.get("OPENAI_API_KEY", ""))
             
             if not openai_api_key:
                 st.error("OpenAI API key not set. Cannot use GPT models.")
@@ -1421,8 +1401,13 @@ with image_tab:
             # Step 2: Generate the image using LangChain's DallEAPIWrapper
             with st.spinner("Generating image with DALL-E..."):
                 try:
-                    # Get OpenAI API key from session state
-                    openai_api_key = st.session_state.get("openai_api_key", "")
+                    # Get OpenAI API key from environment or session state
+                    openai_api_key = os.environ.get("OPENAI_API_KEY", st.session_state.get("OPENAI_API_KEY", ""))
+                    
+                    if not openai_api_key:
+                        st.error("OpenAI API key not set. Cannot generate images.")
+                        st.info("Please set your OpenAI API key in the settings.")
+                        st.stop()
                     
                     # Set the API key in the environment
                     os.environ["OPENAI_API_KEY"] = openai_api_key
