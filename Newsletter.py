@@ -817,9 +817,45 @@ newsletter_tab, bullet_points_tab, tweet_tab, title_tab, image_tab, graph_tab, e
     "Edit & Save"
 ])
 
-# Set the OpenAI API key in session state at startup
-if "openai_api_key" not in st.session_state:
-    st.session_state.openai_api_key = "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"
+# Check for OpenAI API key in secrets first, then environment or session state
+try:
+    # Try to get from secrets, but don't fail if secrets file is missing
+    openai_api_key = ""
+    try:
+        openai_api_key = st.secrets["openai"]["api_key"]
+        # If we get here, the key was found in secrets
+        os.environ["OPENAI_API_KEY"] = openai_api_key  # Set it in environment for libraries that look there
+    except (KeyError, TypeError, FileNotFoundError):
+        # Secrets file not found or key not in secrets - this is expected in some environments
+        pass
+        
+    # If not in secrets, try environment or session state
+    if not openai_api_key:
+        openai_api_key = os.environ.get("OPENAI_API_KEY", st.session_state.get("OPENAI_API_KEY", ""))
+    
+    # Only show the input form if no key is found anywhere
+    if not openai_api_key:
+        st.warning("Your OpenAI API key is not set. Please enter it below:")
+        openai_api_key_input = st.text_input("Enter your OpenAI API key:", type="password", key="openai_api_key_input")
+        
+        if openai_api_key_input and st.button("Save OpenAI API Key"):
+            st.session_state.OPENAI_API_KEY = openai_api_key_input
+            os.environ["OPENAI_API_KEY"] = openai_api_key_input
+            st.success("OpenAI API key saved for this session!")
+            st.experimental_rerun()
+        
+        # Show instructions for getting an API key
+        with st.expander("How to get an OpenAI API key"):
+            st.markdown("""
+            1. Go to [OpenAI Platform](https://platform.openai.com/)
+            2. Sign up or log in to your account
+            3. Navigate to the API Keys section
+            4. Create a new API key
+            5. Copy the key and paste it above
+            """)
+except Exception as e:
+    # Catch any other unexpected errors
+    st.error(f"Error checking for OpenAI API key: {str(e)}")
 
 with newsletter_tab:
     st.markdown(
