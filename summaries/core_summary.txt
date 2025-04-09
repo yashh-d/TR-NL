@@ -1,0 +1,9 @@
+Core DAO is the organization behind Core Chain, a Layer-1 blockchain that merges Bitcoin’s security with Ethereum-like scalability through its unique Satoshi Plus consensus mechanism, which blends delegated proof of work (using Bitcoin miners' hash power) and delegated proof of stake. This hybrid model allows Core to leverage Bitcoin’s robustness while supporting smart contracts and decentralized applications, aiming to provide a highly secure, scalable, and decentralized infrastructure for Web3 development.
+
+
+
+
+
+
+
+

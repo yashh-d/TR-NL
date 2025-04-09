@@ -1,21 +1,13 @@
-⚡What’s happening: The broader Ethereum ecosystem and L2 landscape is due for an upgrade. These chains need better interoperability, throughput and more. And the Superchain thinks it has the solution, OP Labs Head of Product Sam McIngvale shared during Optimism's quarterly webinar with Token Relations. “[The] Superchain’s vision is to enable Ethereum via horizontal scalability,” he added. 
+🔸What we’re watching: Core announced the launch of its Fusion Upgrade, a network change that brings Dual Staking and Liquid Bitcoin Staking (LstBTC) to the blockchain. 
 
-⚡Why it matters: Many L2 chains currently operate in silos, forcing devs and users to choose a chain based on trade offs like user base, fees, and liquidity. The Superchain seeks to solve this problem in 2025 with its unified ecosystem and “seamless” cross-chain interactions through its native OP Stack Interoperability, McIngvale said during the webinar. 
+🔸Why it matters: The Fusion Upgrade is the network’s next step to strengthen Core’s alignment with the Bitcoin  ecosystem by incentivizing participation across both networks. 
 
-Superchain’s native Interop is a key advantage for developers because the core code for blockchain messaging and communication across different chains is integrated or “lives inside” the OP Stack, McIngvale explained. When launched, this native Interoperability will improve users' onchain experience by lowering transaction cost, increasing speed and providing access to many different chains across the Superchain. Devs building protocols using the OP Stack technology will benefit from this unified ecosystem, combining the benefits of many different protocols and chains within the Superchain.
+Dual Staking utilizes a tiered reward structure where users can select where they earn yield based on their network preference. This system would ensure network sustainability without inflating the rewards pool. In addition, it can expand the utility of the CORE token by positioning it as the main driver for users who want to maximize their staking yield. 
 
-In 2024, Superchain had major advancements as some chains transitioned to "Stage 1." This phase was coined by Ethereum Co-founder Vitalik Buterin and describes when a blockchain operates with "limited training wheels" in place and is migrating toward full decentralization. 
+The LstBTC token, set to go live soon, encourages stakers to participate in the broader Core’s ecosystem without compromising ownership of their assets. This means users can retain the amount of liquidity they control, thus making bitcoin staking more versatile and accessible. This is one of Core’s mission statements as they want to provide users the ability to earn yield on their holdings, but still be exposed to bitcoin’s upside potential.
 
-OP mainnet has already achieved Stage 1 decentralization with the implementation of permissionless fault proofs for enhanced security. Networks such as Base, Ink, Unichain, World, and other chains within the Superchain are actively working toward adopting this technology and becoming more decentralized. 
+With the addition of these two functions, Core aims to create more attention for Bitcoin DeFi (BTCfi). As Bitcoin becomes more popular, users may be attracted to the BTCfi space because of the yield-generating solutions Core offers.
 
-Secondly, the implementation of SuperchainERC20 is set to enhance its ecosystem further by providing dApps with a uniform way to manage tokens across multiple chains. This means tokens can move easily across the Superchain, eliminating the need for coin wrappers and complex bridging solutions. This new token standard simplifies cross-chain transactions for both developers and users. 
+🔸The bigger picture: The Fusion Upgrade can be a secure environment for users who want to earn yield on their bitcoin. In terms of market share, Core is number one for networks focused on helping scale bitcoin, across multiple key metrics and categories like TVL and DeFi protocols created onchain, according to data presented by Footprint Analytics. 
 
-Furthermore, the discussion also highlighted the impact of the upcoming Ethereum Pectra upgrade, which aims to reduce costs and improve scalability across Ethereum L2s. This upgrade will allow for OP Stack chains to have better speed and efficiency through account abstraction and improved data availability, McIngvale said.  Additionally, this upgrade introduces the necessity for blob limits to increase in order for the majority of L2s to scale further. 
-
-The impact blobs have on scaling L2s can be profound, as raising the blob limit can potentially increase throughput by two times, improving scalability and reducing congestion, McIngvale said.
-
-As more developments push the boundaries of what’s possible within the Superchain, more activations and opportunities can come onchain. 
-
-⚡What it means for the broader ecosystem: The primary goal for the Superchain is to improve L2s interoperability and scaling, while aligning with Ethereum, McIngvale explained. 
-
-Within the next few years, OP Labs wants to reach “full horizontal scalability,” so developers no longer need to choose a single chain for liquidity and users, he noted. By lowering transaction costs, speeding up block times, and unifying cross-chain operations, the Superchain plans to position itself to become a key ecosystem for interoperability across DeFi, AI, NFTs, gaming, and beyond.
+Core looks to increase this percentage by aligning the Bitcoin network with its own network so users can engage with both chain’s assets. The network also wants to drive growth in scaling and cater to both institutional and individual participants. 

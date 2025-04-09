@@ -1,21 +1,13 @@
-⚡What’s happening: Base ranked as the top blockchains by bridged net flows at $3.7 billion over the past year, according to Artemis data. 
+🔸What we’re watching: The Core DAO governance team proposed an increase in validator bond requirements, which increases the amount of CORE tokens needed 4,900% from 10,000 to 500,000.
 
-⚡Why it matters: Base ranked at the top of this category with Optimism’s OP Mainnet taking the second highest slot at $2.1 billion, over the past 12-months, the data showed. This means the two together bridged over $5.8 billion in net flows.
+🔸Why it matters: This proposal looks to enhance the network’s security and accountability by increasing the threshold needed to participate in Core’s proof-of-stake (PoS) network. Existing validators will be grandfathered in, while new validators and any partners will need to meet the updated threshold, the proposal stated. In turn, it's designed to make the blockchain a more robust and committed validator ecosystem.
 
-The dominance of these two chains by net flows highlights the broader Superchain ecosystem’s attractive scalability, which continues to draw developers and liquidity across different web3 projects. 
+For context, validators are an integral part of PoS networks because they help maintain the blockchain’s integrity and functionality. With the current validator threshold at 10,000 CORE, it allows a broad range of participants to join the ecosystem and contribute to its decentralization.
 
-The two networks, built on the OP Stack, also ranked above other high traffic networks such as Solana at $2.1 billion and Arbitrum at $1.5 billion, the data showed. 
+However, this low amount can also attract bad actors that don’t have the network’s security in best interest, as well as influence voting decisions and staking amounts. By increasing the amount needed by a significant percentage, it can be seen as a strategic move to deter malicious users and enhance network reliability. 
 
-For Base specifically, its developer kit has contributed to its growth, with some of the largest AI projects built on the network. Virtuals, a protocol for developing decentralized AI agent applications built on Base has incubated popular AI crypto projects like AIXBT. The autonomous X bot has developed mass exposure as it leads Cookie DAO’s AI agents index mindshare at 15.75%. AIXBT has also amassed a market cap of over $500 million. 
+Currently, 500,000 CORE tokens is equivalent to about $221,800. As opposed to the current amount needed, which is about $4,436, it means there is more capital needed to participate, thus making a higher barrier of entry.  
 
-Base’s AI market cap is at $7.2 billion, Cookie DAO’s data shows. Similarly, Virtuals’ token is the sixth largest AI token by market cap and it has been a major contributor to the Base ecosystem with over $2.1 billion bridged to the network from its platform.
+🔸The bigger picture: The proposed change aims to position the Core blockchain as a network built for scalability and long term token holders. A 500,000 CORE validator threshold could incentivize those who prioritize the health of its network.
 
-OP mainnet also had networks with increased activity onchain such as Uniswap, Chainlink, Velodrome and Circle. The Superchain DEX, Velodrome, saw growth in TVL going from $7.4 billion to $22.6 billion and contributing to the net flows of the OP mainnet ecosystem.
-
-Base and OP mainnet’s successes in the past year highlights the many new developments happening with projects built with the OP Stack, especially in AI.
-
-⚡What it means for the broader ecosystem: The Superchain ecosystem’s success in 2024 reflects the growing adoption of OP Stack’s technology and ability to support decentralized applications with many users and large liquidity. 
-
-The Superchain ecosystem has 319 apps live and contributes to nearly 50% of all layer-2 transactions on Ethereum. As it continues to grow and moves towards interoperability, the chains and projects within the ecosystem will also have opportunities to increase users and liquidity across many networks with the unifying layer. 
-
-The rising interest in AI protocols across the crypto ecosystem has been one of the leading narratives in web3. Networks built on the OP Stack like Base have produced some of the most popular applications thus far. If the trends continue, the Superchain could be the home to some of the most popular applications in crypto providing developers with an intuitive and efficient platform to build and scale apps across Ethereum.
+Over time, this could elevate Core’s reputation as a secure and stable blockchain, potentially attracting developers and institutional users alike.
