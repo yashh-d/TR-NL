@@ -37,12 +37,12 @@ import asyncio
 from anthropic import AsyncAnthropic
 from langchain.agents import ConversationalChatAgent, AgentExecutor
 from langchain.memory import ConversationBufferMemory
+from langchain_community.callbacks import StreamlitCallbackHandler
 from langchain_community.chat_message_histories import StreamlitChatMessageHistory
 from langchain_core.runnables import RunnableConfig
 from langchain_anthropic import ChatAnthropic
 
-from tool2 import topic_research, edit_for_style, evaluate_newsletter
-
+from tools import topic_research, edit_for_style, evaluate_newsletter
 # First, let's modify how we wrap the async functions in Tool objects
 from functools import partial
 import asyncio
