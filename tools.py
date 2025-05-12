@@ -9,9 +9,43 @@ from langchain.prompts import ChatPromptTemplate
 from langchain.chains import LLMChain
 from langchain_anthropic import ChatAnthropic
 from anthropic import AsyncAnthropic
+import streamlit as st
+
+# Check if the API key exists in Streamlit secrets or environment variables
+try:
+    # Try to get from secrets
+    anthropic_api_key = st.secrets.get("anthropic", {}).get("api_key")
+    if not anthropic_api_key:
+        # Fall back to environment variables
+        anthropic_api_key = os.environ.get("ANTHROPIC_API_KEY")
+    
+    if not anthropic_api_key:
+        st.error("Anthropic API key not found in Streamlit secrets or environment variables.")
+        st.info("Please add your API key to .streamlit/secrets.toml under [anthropic] section or set the ANTHROPIC_API_KEY environment variable.")
+        st.stop()  # Stop execution if no API key is found
+except Exception as e:
+    st.error(f"Error retrieving Anthropic API key: {str(e)}")
+    st.stop()
 
 # Initialize the Anthropic client
-client = AsyncAnthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
+client = AsyncAnthropic(api_key=anthropic_api_key)
+
+# Get Perplexity API key from Streamlit secrets or environment variables
+try:
+    # Try to get from secrets
+    perplexity_api_key = st.secrets.get("perplexity", {}).get("api_key")
+    if not perplexity_api_key:
+        # Fall back to environment variables
+        perplexity_api_key = os.environ.get("PERPLEXITY_API_KEY")
+    
+    if not perplexity_api_key:
+        # Fallback to the hardcoded key as last resort
+        perplexity_api_key = "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"
+        st.warning("Using default Perplexity API key. For production use, please add your own key to .streamlit/secrets.toml under [perplexity] section.")
+except Exception as e:
+    # Fallback to the hardcoded key if any error occurs
+    perplexity_api_key = "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"
+    st.warning(f"Error retrieving Perplexity API key: {str(e)}. Using default key instead.")
 
 async def topic_research(query: str) -> dict:
     """
@@ -58,7 +92,7 @@ async def topic_research(query: str) -> dict:
     
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer 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"
+        "Authorization": f"Bearer {perplexity_api_key}"
     }
     
     try:
