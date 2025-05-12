@@ -172,10 +172,23 @@ DO NOT:
     ("human", "{input}")
 ])
 
+# Check if the API key exists in Streamlit secrets
+try:
+    anthropic_api_key = st.secrets["anthropic"]["api_key"]
+except (KeyError, TypeError):
+    # If not in secrets, try environment variables
+    anthropic_api_key = os.environ.get("ANTHROPIC_API_KEY")
+    
+    # If still not found
+    if not anthropic_api_key:
+        st.error("Anthropic API key not found in Streamlit secrets or environment variables.")
+        st.info("Please set your API key in .streamlit/secrets.toml or as an environment variable.")
+        st.stop()  # Stop execution if no API key is found
+
 # Create the agent with the proper prompt template and error handling
 agent = create_react_agent(
     llm=ChatAnthropic(
-        api_key=os.environ.get("ANTHROPIC_API_KEY"),
+        api_key=anthropic_api_key,  # Use the variable we checked
         model="claude-3-7-sonnet-latest",
         temperature=0,
         timeout=None,
