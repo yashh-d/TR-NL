@@ -1,10 +1,13 @@
+import toml
 import os
+import os
+import sys
 import streamlit as st
 from typing import Optional
 from datetime import datetime
 from supabase import create_client, Client  # Import Supabase client
 import json
-from langchain_anthropic import ChatAnthropic
+from langchain_anthropic import ChatAnthropic  # Changed from langchain.llms
 from langchain_openai import ChatOpenAI
 from PIL import Image
 import io
@@ -23,6 +26,176 @@ import imageio
 import numpy as np
 from scipy.interpolate import interp1d
 import math
+from langchain.agents import AgentExecutor, Tool, create_react_agent
+from langchain.prompts import ChatPromptTemplate
+from langchain.callbacks import StreamlitCallbackHandler
+from langchain_core.runnables import RunnableConfig
+from langchain.agents import AgentType, initialize_agent
+from langchain.callbacks import StreamlitCallbackHandler
+from langchain.tools import Tool
+import asyncio
+from anthropic import AsyncAnthropic
+from langchain.agents import ConversationalChatAgent, AgentExecutor
+from langchain.memory import ConversationBufferMemory
+from langchain_community.chat_message_histories import StreamlitChatMessageHistory
+from langchain_core.runnables import RunnableConfig
+from langchain_anthropic import ChatAnthropic
+
+from tool2 import topic_research, edit_for_style, evaluate_newsletter
+
+# First, let's modify how we wrap the async functions in Tool objects
+from functools import partial
+import asyncio
+
+# Create a wrapper function to handle async functions
+def async_wrapper(func):
+    def wrapper(*args, **kwargs):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            return loop.run_until_complete(func(*args, **kwargs))
+        finally:
+            loop.close()
+    return wrapper
+
+# Wrap the async functions in Tool objects with the async wrapper
+tools = [
+    Tool(
+        name="topic_research",
+        description="Research blockchain and crypto ecosystem developments using Perplexity's API",
+        func=async_wrapper(topic_research)
+    ),
+    Tool(
+        name="edit_for_style",
+        description="Edit content to align with Token Relations' distinctive voice and style",
+        func=async_wrapper(edit_for_style)
+    ),
+    Tool(
+        name="evaluate_newsletter",
+        description="Evaluate newsletter content against Token Relations' quality standards",
+        func=async_wrapper(evaluate_newsletter)
+    )
+]
+
+# Create the ReAct prompt template with required variables
+prompt = ChatPromptTemplate.from_messages([
+    ("system", """You are the newsletter editing agent for Token Relations, a firm providing ecosystem relations for blockchains and protocols. Your primary responsibility is to evaluate and refine newsletter content to ensure it meets our quality standards and style guidelines.
+
+Core Mission
+You evaluate newsletter content and make necessary edits to improve clarity, neutrality, and effectiveness while maintaining our distinctive voice.
+
+ABOUT TOKEN RELATIONS:
+- We provide ecosystem relations for blockchains and protocols
+- Our audience is informed professionals who need clear, factual insights
+- We bridge the gap between technical complexity and practical significance
+
+OUR WRITING ETHOS:
+- Data-focused but accessible (metrics with meaning)
+- Technical but not technical for technical's sake
+- Neutral without being dry (informative but engaging)
+- Forward-looking without speculation
+- Educational without condescension
+
+OUR UNIQUE VOICE:
+- We use specific metrics attributed to sources
+- We explain "why it matters" by connecting dots between developments
+- We define technical concepts in context
+- We avoid ALL marketing language ("revolutionary," "game-changing," etc.)
+- We never claim something is "first" or "best"
+- We let facts speak for themselves
+
+NEWSLETTER STRUCTURE:
+1. "What happened:" - Concise, specific event with key metrics
+2. "Why it matters:" - Connecting development to practical significance
+3. "The big picture:" - Broader context and measured implications
+
+TASK HANDLING:
+1. For simple tasks (like research):
+   - Execute the task ONCE
+   - When you receive the research results, you MUST:
+     a. Acknowledge the results
+     b. End with "TASK COMPLETE"
+     c. DO NOT make another tool call
+   - Example format:
+     Thought: I have received the research results. The task is complete.
+     Final Answer: TASK COMPLETE - [Research results summary]
+
+2. For complex tasks (like newsletter editing):
+   - Follow the full evaluation and editing process
+   - Continue until quality standards are met
+   - Show all changes and improvements
+   - After final edit, ALWAYS end with "TASK COMPLETE"
+
+Available tools:
+{tools}
+
+Tool names:
+{tool_names}
+
+{agent_scratchpad}
+
+IMPORTANT: You must follow this EXACT format for each step:
+Thought: (your reasoning about what to do)
+Action: (the tool to use)
+Action Input: (the input for the tool)
+Observation: (the result of the tool)
+
+For simple tasks, after receiving results:
+Thought: I have received the research results. The task is complete.
+Final Answer: TASK COMPLETE - [Brief summary of results]
+
+For complex tasks, end with:
+Thought: I have completed the evaluation and editing process
+Final Answer: TASK COMPLETE - (show the user):
+1. Original content
+2. Evaluation results with scores and recommendations
+3. Edited content with style improvements
+4. List of specific changes made
+
+STOPPING CONDITIONS:
+1. After executing a simple task ONCE
+2. After completing a complex task's evaluation and editing
+3. When you see "TASK COMPLETE" in your own output
+4. After three editing attempts
+5. When the overall score reaches 8 or higher
+
+DO NOT:
+- Execute the same tool multiple times for simple tasks
+- Continue after seeing "TASK COMPLETE"
+- Skip showing any changes to the user
+- Leave any edits unexplained
+- Use marketing language or hype
+- Make claims without specific metrics or sources
+- Oversimplify technical concepts
+- Use absolute terms without evidence
+- Include speculative statements without context"""),
+    ("human", "{input}")
+])
+
+# Create the agent with the proper prompt template and error handling
+agent = create_react_agent(
+    llm=ChatAnthropic(
+        api_key=ANTHROPIC_API_KEY,
+        model="claude-3-7-sonnet-latest",
+        temperature=0,
+        timeout=None,
+        max_retries=2,
+        streaming=True
+    ),
+    tools=tools,
+    prompt=prompt
+)
+
+# Create and store the agent executor with corrected configuration
+st.session_state.agent_executor = AgentExecutor.from_agent_and_tools(
+    agent=agent,
+    tools=tools,
+    verbose=True,
+    handle_parsing_errors=True,
+    max_iterations=10,  # Increased from 2 to 10
+    return_intermediate_steps=True,
+    timeout=300  # 5 minute timeout
+)
 
 # Try to import Google Gemini, but silently handle if it's not available
 try:
@@ -35,7 +208,138 @@ except ImportError:
 # Install Dependencies (via terminal/pip):
 #   pip install langchain anthropic streamlit supabase
 #   or adapt to your environment as needed.
-# ----------------------------------------------------------------------
+# --------------------------
+# --- Helper function to fetch recent tweets ---
+def fetch_recent_tweets(supabase: Optional[Client], clients: list, limit_per_fetch: int = 100):
+    """Fetches recent tweets for specified clients from Supabase and returns a single sorted list."""
+    all_tweets_list = []
+    if not supabase or not clients:
+        st.warning("Supabase client not available or no clients selected.")
+        return all_tweets_list
+
+    try:
+        clients_lower = [c.lower() for c in clients]
+        st.write(f"Fetching up to {limit_per_fetch} most recent tweets across clients: {', '.join(clients_lower)}") # Debugging output
+
+        response = (
+            supabase.table('tweets')
+            .select('tweet_id, client, text, url, created_at, likes, retweets, replies, is_quote')
+            .in_('client', clients_lower)
+            .order('created_at', desc=True)
+            .limit(limit_per_fetch) # Fetch a single batch of the most recent tweets across selected clients
+            .execute()
+        )
+
+        if response.data:
+            st.write(f"Fetched {len(response.data)} total tweets from Supabase.") # Debugging
+            for tweet in response.data:
+                # Parse datetime
+                if tweet.get('created_at'):
+                    try:
+                        tweet['created_at'] = datetime.fromisoformat(tweet['created_at'].replace('Z', '+00:00'))
+                    except (ValueError, TypeError):
+                        tweet['created_at'] = datetime.now() # Fallback
+                else:
+                    tweet['created_at'] = datetime.now() # Fallback
+
+                # Ensure client name is capitalized for display consistency
+                tweet['client'] = tweet.get('client', 'unknown').capitalize()
+
+                all_tweets_list.append(tweet)
+
+            # The list is already sorted by date due to the Supabase query order
+            st.write(f"Processed {len(all_tweets_list)} tweets.") # Debugging
+
+        else:
+             st.warning(f"No tweets found for the selected clients in the database.")
+             if response.error:
+                 st.error(f"Supabase error: {response.error.message}")
+
+    except Exception as e:
+        st.error(f"Error fetching tweets from Supabase: {str(e)}")
+        import traceback
+        st.error(traceback.format_exc())
+
+    return all_tweets_list
+
+# --- Helper function to fetch links for a client ---
+def fetch_client_links(supabase: Optional[Client], client: str, limit: int = 20):
+    """Fetches recent links for a specified client from the 'links' table."""
+    links_list = []
+    if not supabase or not client:
+        st.warning("Supabase client not available or client not selected.")
+        return links_list
+
+    client_lower = client.lower()
+    st.write(f"Fetching links for: {client_lower}") # Debug
+
+    try:
+        response = (
+            supabase.table('links')
+            # Select relevant columns - 'url' and 'title' seem most useful
+            .select('url, title, first_seen, last_checked')
+            .eq('client', client_lower)
+            .order('last_checked', desc=True) # Order by most recently checked/seen
+            .limit(limit)
+            .execute()
+        )
+
+        if response.data:
+            st.write(f"Fetched {len(response.data)} links for {client} from DB.") # Debug
+            # Format for display
+            for link in response.data:
+                 link_title = link.get('title') or link.get('url') # Use URL as fallback title
+                 link_url = link.get('url')
+                 last_checked_raw = link.get('last_checked')
+                 try:
+                     last_checked_dt = datetime.fromisoformat(last_checked_raw.replace('Z', '+00:00')) if last_checked_raw else None
+                     last_checked_str = last_checked_dt.strftime('%Y-%m-%d') if last_checked_dt else 'N/A'
+                 except:
+                     last_checked_str = 'Invalid Date'
+
+                 links_list.append({
+                     "title": link_title,
+                     "url": link_url,
+                     "last_checked": last_checked_str
+                 })
+
+        else:
+            st.info(f"No links found for {client} in the database.")
+            # Check for explicit errors if needed
+            # if response.error: st.error(...)
+
+    except Exception as e:
+        st.error(f"Error fetching links for {client}: {str(e)}")
+        import traceback
+        st.error(traceback.format_exc())
+
+    return links_list
+
+# --- Helper function to format fetched data for context ---
+def format_fetched_data_for_context(tweets: list, links: list) -> str:
+    """Formats fetched tweets and links into a string suitable for context."""
+    context_str = ""
+
+    if tweets:
+        context_str += "=== RECENT TWEETS ===\n"
+        for tweet in tweets:
+             tweet_date = tweet.get('created_at')
+             display_date = tweet_date.strftime('%Y-%m-%d %H:%M') if tweet_date else 'N/A'
+             tweet_text = tweet.get('text', 'N/A')
+             tweet_url = tweet.get('url', '#')
+             context_str += f"- ({display_date}): {tweet_text} [Link]({tweet_url})\n"
+        context_str += "\n" # Add spacing
+
+    if links:
+        context_str += "=== RECENT/RELEVANT LINKS ===\n"
+        for link in links:
+             link_title = link.get('title', 'N/A')
+             link_url = link.get('url', '#')
+             last_checked = link.get('last_checked', 'N/A')
+             context_str += f"- Title: {link_title}\n  URL: {link_url}\n  (Last Checked: {last_checked})\n"
+        context_str += "\n" # Add spacing
+
+    return context_str
 
 ########################
 # 1. CLIENT FILES SETUP #
@@ -807,8 +1111,9 @@ st.markdown(hide_footer_style, unsafe_allow_html=True)
 st.title("Token Relations 📊 Newsletter")
 
 # Create tabs for Newsletter Generator, Bullet Point Generator, Tweet Generator, Title Generator, Cover Image, Graph Plotter, and Edit & Save
-newsletter_tab, bullet_points_tab, tweet_tab, title_tab, image_tab, graph_tab, edit_save_tab = st.tabs([
+newsletter_tab, react_agent_tab, bullet_points_tab, tweet_tab, title_tab, image_tab, graph_tab, edit_save_tab = st.tabs([
     "Newsletter Generator", 
+    "React Agent Chat",
     "Bullet Point Generator", 
     "Tweet Generator", 
     "Title Generator", 
@@ -946,8 +1251,88 @@ with newsletter_tab:
             # Provide information about the expected directory structure
             st.info(f"Make sure to create the style file: {STYLE_FILE_NAMES[selected_style]} in the folder: {style_folder}")
 
-    # --- Newsletter user inputs ---
-    context_text = st.text_area("Context Information (Newsletter)", height=150)
+    # Initialize session state for context_text if it doesn't exist
+    if 'context_text' not in st.session_state:
+        st.session_state.context_text = ""
+
+    # Add tweet and link selection section
+    st.markdown("### Recent Tweets and Links")
+
+    # Create two columns for tweets and links
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("#### Recent Tweets")
+        # Fetch recent tweets for the selected client
+        recent_tweets = fetch_recent_tweets(st.session_state.get("supabase_client"), [selected_client], limit_per_fetch=10)
+        
+        if recent_tweets:
+            # Create a list of tweet options for the dropdown
+            tweet_options = [f"{tweet['created_at'].strftime('%Y-%m-%d %H:%M')}: {tweet['text'][:50]}..." for tweet in recent_tweets]
+            selected_tweets = st.multiselect(
+                "Select tweets to include",
+                options=tweet_options,
+                key="tweet_selector"
+            )
+            
+            # Show selected tweets in an expander
+            if selected_tweets:
+                with st.expander("Selected Tweets"):
+                    for tweet_option in selected_tweets:
+                        # Find the corresponding tweet in recent_tweets
+                        tweet = next((t for t in recent_tweets if tweet_option.startswith(t['created_at'].strftime('%Y-%m-%d %H:%M'))), None)
+                        if tweet:
+                            st.markdown(f"- **{tweet['created_at'].strftime('%Y-%m-%d %H:%M')}**: {tweet['text']}")
+                            st.markdown(f"  [Link]({tweet['url']})")
+        else:
+            st.info("No recent tweets found for this client.")
+
+    with col2:
+        st.markdown("#### Recent Links")
+        # Fetch recent links for the selected client
+        recent_links = fetch_client_links(st.session_state.get("supabase_client"), selected_client, limit=10)
+        
+        if recent_links:
+            # Create a list of link options for the dropdown
+            link_options = [f"{link['title']} (Last checked: {link['last_checked']})" for link in recent_links]
+            selected_links = st.multiselect(
+                "Select links to include",
+                options=link_options,
+                key="link_selector"
+            )
+            
+            # Show selected links in an expander
+            if selected_links:
+                with st.expander("Selected Links"):
+                    for link_option in selected_links:
+                        # Find the corresponding link in recent_links
+                        link = next((l for l in recent_links if link_option.startswith(l['title'])), None)
+                        if link:
+                            st.markdown(f"- **{link['title']}**")
+                            st.markdown(f"  URL: {link['url']}")
+                            st.markdown(f"  Last checked: {link['last_checked']}")
+        else:
+            st.info("No recent links found for this client.")
+
+    # Add a button to add selected tweets and links to context
+    if st.button("Add Selected Items to Context"):
+        # Format selected tweets and links
+        selected_tweet_data = [t for t in recent_tweets if f"{t['created_at'].strftime('%Y-%m-%d %H:%M')}: {t['text'][:50]}..." in selected_tweets]
+        selected_link_data = [l for l in recent_links if f"{l['title']} (Last checked: {l['last_checked']})" in selected_links]
+        
+        # Format the data
+        formatted_data = format_fetched_data_for_context(selected_tweet_data, selected_link_data)
+        
+        # Add to existing context or create new context
+        if st.session_state.context_text:
+            st.session_state.context_text = f"{st.session_state.context_text}\n\n{formatted_data}"
+        else:
+            st.session_state.context_text = formatted_data
+        
+        st.success("Selected items added to context!")
+
+    # Use session state for the context text area
+    context_text = st.text_area("Context Information (Newsletter)", height=150, value=st.session_state.context_text)
     topic = st.text_area("Newsletter Topic", height=70, key="newsletter_topic_input")
     
     # Add additional tailoring instructions right after context input
@@ -1166,22 +1551,294 @@ with newsletter_tab:
             st.session_state.newsletter_title = ""
             st.experimental_rerun()
 
+with react_agent_tab:
+    st.title("React Agent Chat")
+    
+    # Initialize chat history in session state if it doesn't exist
+    if "messages" not in st.session_state:
+        msgs = StreamlitChatMessageHistory()
+        memory = ConversationBufferMemory(
+            chat_memory=msgs, return_messages=True, memory_key="chat_history", output_key="output"
+        )
+        st.session_state.msgs = msgs
+        st.session_state.memory = memory
+        st.session_state.steps = {}
+        
+        # Add initial message
+        msgs.add_ai_message("I'm your Token Relations newsletter assistant. How can I help you today?")
+    else:
+        msgs = st.session_state.msgs
+        memory = st.session_state.memory
+    
+    # Display chat messages
+    avatars = {"human": "user", "ai": "assistant"}
+    for idx, msg in enumerate(msgs.messages):
+        with st.chat_message(avatars[msg.type]):
+            # Render intermediate steps if any were saved
+            for step in st.session_state.steps.get(str(idx), []):
+                if step[0].tool == "_Exception":
+                    continue
+                with st.status(f"**{step[0].tool}**: {step[0].tool_input}", state="complete"):
+                    # Handle different tools differently
+                    if step[0].tool == "topic_research" and isinstance(step[1], (dict, str)):
+                        try:
+                            # Convert to dict if it's a string
+                            if isinstance(step[1], str):
+                                import json
+                                result = json.loads(step[1])
+                            else:
+                                result = step[1]
+                            
+                            # Research content at the top
+                            st.markdown("### Research Content")
+                            st.write(result.get('research_content', 'No content available'))
+                            
+                            # Sources as a list
+                            if result.get('sources'):
+                                st.markdown("### Sources")
+                                for source in result.get('sources', []):
+                                    st.markdown(f"- **{source.get('name', 'Unknown')}** ({source.get('type', 'Unknown')}): [{source.get('url', '#')}]({source.get('url', '#')})")
+                            
+                            # Metrics in sections
+                            if result.get('metrics'):
+                                st.markdown("### Metrics")
+                                metrics = result.get('metrics', {})
+                                
+                                # Market metrics
+                                if metrics.get('market_metrics'):
+                                    st.markdown("#### Market Metrics")
+                                    for k, v in metrics.get('market_metrics', {}).items():
+                                        st.markdown(f"- **{k}**: {v}")
+                                
+                                # Ecosystem metrics
+                                if metrics.get('ecosystem_metrics'):
+                                    st.markdown("#### Ecosystem Metrics")
+                                    for k, v in metrics.get('ecosystem_metrics', {}).items():
+                                        st.markdown(f"- **{k}**: {v}")
+                                
+                                # Growth metrics
+                                if metrics.get('growth_metrics'):
+                                    st.markdown("#### Growth Metrics")
+                                    for k, v in metrics.get('growth_metrics', {}).items():
+                                        st.markdown(f"- **{k}**: {v}")
+                        except:
+                            # Fallback to standard display
+                            st.write(step[1])
+                    
+                    # Special handling for edit_for_style tool
+                    elif step[0].tool == "edit_for_style":
+                        try:
+                            # Try to parse as JSON if it's a string that looks like JSON
+                            if isinstance(step[1], str) and step[1].strip().startswith('{'):
+                                import json
+                                data = json.loads(step[1])
+                                
+                                # If we have 'refined_content', show that directly
+                                if 'refined_content' in data:
+                                    st.markdown(data['refined_content'])
+                                else:
+                                    # Otherwise just show the raw response
+                                    st.write(step[1])
+                            # If it's already a dict
+                            elif isinstance(step[1], dict) and 'refined_content' in step[1]:
+                                st.markdown(step[1]['refined_content'])
+                            else:
+                                # Just display as-is if not JSON format
+                                st.write(step[1])
+                        except:
+                            # If parsing fails, display as-is
+                            st.write(step[1])
+                    
+                    # Standard display for other tools
+                    else:
+                        st.write(step[1])
+            
+            # Display the message content
+            st.write(msg.content)
+    
+    # Chat input
+    if prompt := st.chat_input(placeholder="Ask about blockchain developments or request newsletter help"):
+        st.chat_message("user").write(prompt)
+        
+        # Use existing tools with the ConversationalChatAgent
+        chat_agent = ConversationalChatAgent.from_llm_and_tools(
+            llm=ChatAnthropic(
+                api_key=ANTHROPIC_API_KEY,
+                model="claude-3-7-sonnet-latest",
+                temperature=0,
+                streaming=True
+            ),
+            tools=tools,
+            # System message with specific tool handling instructions
+            system_message="""You are the newsletter editing agent for Token Relations, a firm providing ecosystem relations for blockchains and protocols.
+
+When handling research tasks (topic_research):
+1. Run the topic_research tool with the user's query
+2. After receiving the results, just say "Research complete."
+3. Don't analyze or summarize the research results
+
+When handling style editing tasks (edit_for_style):
+1. Run the edit_for_style tool with the user's content
+2. After receiving results, just say "Editing complete."
+3. Don't provide additional commentary or analysis
+
+When handling newsletter evaluation (evaluate_newsletter):
+1. Run the evaluate_newsletter tool with the user's content
+2. After receiving results, just say "Evaluation complete."
+3. The results will be displayed directly to the user
+
+For other tasks:
+- Provide helpful, concise responses
+- Maintain our distinctive factual, clear, and substantive voice
+
+Remember, keep your final answers brief - the tool outputs will be displayed automatically."""
+        )
+        
+        # Create executor with the Conversational agent
+        executor = AgentExecutor.from_agent_and_tools(
+            agent=chat_agent,
+            tools=tools,
+            memory=memory,
+            return_intermediate_steps=True,
+            handle_parsing_errors=True,
+            max_iterations=5  # Keep it low to prevent looping
+        )
+        
+        # Execute and display results
+        with st.chat_message("assistant"):
+            st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=False)
+            cfg = RunnableConfig()
+            cfg["callbacks"] = [st_cb]
+            
+            response = executor.invoke(prompt, cfg)
+            
+            # Handle different tool outputs differently
+            has_tool_output = False
+            for step in response["intermediate_steps"]:
+                tool_name = step[0].tool if hasattr(step[0], 'tool') else ""
+                if tool_name in ["topic_research", "edit_for_style", "evaluate_newsletter"]:
+                    has_tool_output = True
+                    break
+            
+            if has_tool_output:
+                # For tool-based tasks, use a simple completion message
+                if "topic_research" in [s[0].tool for s in response["intermediate_steps"]]:
+                    st.write("Research complete.")
+                elif "edit_for_style" in [s[0].tool for s in response["intermediate_steps"]]:
+                    st.write("Editing complete.")
+                elif "evaluate_newsletter" in [s[0].tool for s in response["intermediate_steps"]]:
+                    st.write("Evaluation complete.")
+            else:
+                # For other types of requests, show the normal response
+                st.write(response["output"])
+            
+            # Store steps for future rendering
+            st.session_state.steps[str(len(msgs.messages) - 1)] = response["intermediate_steps"]
+    
+    # Add a clear chat button
+    if st.button("Clear Chat History"):
+        st.session_state.msgs.clear()
+        st.session_state.msgs.add_ai_message("I'm your Token Relations newsletter assistant. How can I help you today?")
+        st.session_state.steps = {}
+        st.experimental_rerun()
+    
+    # Add example prompts
+    with st.expander("Example Prompts"):
+        st.markdown("""
+        Try asking:
+        - "Research the latest developments in Layer 2 scaling solutions"
+        - "Help me draft a newsletter about the recent DeFi protocol upgrade"
+        - "Edit this newsletter section to match our style: [paste content]"
+        - "Evaluate this newsletter draft for quality: [paste content]"
+        """)
+
 with bullet_points_tab:
     st.title("Bullet Point Generator")
     
     # Create tabs for ecosystem and community bullet points
     ecosystem_tab, community_tab = st.tabs(["Ecosystem Bullet Points", "Community Bullet Points"])
     
+    # Initialize session states for bullet point contexts if they don't exist
+    if 'ecosystem_context' not in st.session_state:
+        st.session_state.ecosystem_context = ""
+    if 'community_context' not in st.session_state:
+        st.session_state.community_context = ""
+    
     with ecosystem_tab:
         st.markdown("### Ecosystem Bullet Points")
         st.markdown("Generate bullet points related to technical developments, partnerships, protocol upgrades, and ecosystem growth.")
+        
+        # Add tweet and link selection section
+        st.markdown("### Recent Tweets and Links")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### Recent Tweets")
+            # Fetch recent tweets for the selected client
+            recent_tweets_eco = fetch_recent_tweets(st.session_state.get("supabase_client"), [selected_client], limit_per_fetch=10)
+            
+            if recent_tweets_eco:
+                tweet_options = [f"{tweet['created_at'].strftime('%Y-%m-%d %H:%M')}: {tweet['text'][:50]}..." for tweet in recent_tweets_eco]
+                selected_tweets_eco = st.multiselect(
+                    "Select tweets to include",
+                    options=tweet_options,
+                    key="ecosystem_tweet_selector"
+                )
+                
+                if selected_tweets_eco:
+                    with st.expander("Selected Tweets"):
+                        for tweet_option in selected_tweets_eco:
+                            tweet = next((t for t in recent_tweets_eco if tweet_option.startswith(t['created_at'].strftime('%Y-%m-%d %H:%M'))), None)
+                            if tweet:
+                                st.markdown(f"- **{tweet['created_at'].strftime('%Y-%m-%d %H:%M')}**: {tweet['text']}")
+                                st.markdown(f"  [Link]({tweet['url']})")
+            else:
+                st.info("No recent tweets found for this client.")
+        
+        with col2:
+            st.markdown("#### Recent Links")
+            recent_links_eco = fetch_client_links(st.session_state.get("supabase_client"), selected_client, limit=10)
+            
+            if recent_links_eco:
+                link_options = [f"{link['title']} (Last checked: {link['last_checked']})" for link in recent_links_eco]
+                selected_links_eco = st.multiselect(
+                    "Select links to include",
+                    options=link_options,
+                    key="ecosystem_link_selector"
+                )
+                
+                if selected_links_eco:
+                    with st.expander("Selected Links"):
+                        for link_option in selected_links_eco:
+                            link = next((l for l in recent_links_eco if link_option.startswith(l['title'])), None)
+                            if link:
+                                st.markdown(f"- **{link['title']}**")
+                                st.markdown(f"  URL: {link['url']}")
+                                st.markdown(f"  Last checked: {link['last_checked']}")
+            else:
+                st.info("No recent links found for this client.")
+        
+        # Add button to add selected items to ecosystem context
+        if st.button("Add Selected Items to Ecosystem Context"):
+            selected_tweet_data = [t for t in recent_tweets_eco if f"{t['created_at'].strftime('%Y-%m-%d %H:%M')}: {t['text'][:50]}..." in selected_tweets_eco]
+            selected_link_data = [l for l in recent_links_eco if f"{l['title']} (Last checked: {l['last_checked']})" in selected_links_eco]
+            
+            formatted_data = format_fetched_data_for_context(selected_tweet_data, selected_link_data)
+            
+            if st.session_state.ecosystem_context:
+                st.session_state.ecosystem_context = f"{st.session_state.ecosystem_context}\n\n{formatted_data}"
+            else:
+                st.session_state.ecosystem_context = formatted_data
+            
+            st.success("Selected items added to ecosystem context!")
         
         # Load ecosystem examples from global file but don't display them to the user
         default_ecosystem_examples = load_bullet_point_examples("Ecosystem")
         
         ecosystem_context = st.text_area(
             "Ecosystem Context Information", 
-            height=150
+            height=150,
+            value=st.session_state.ecosystem_context
         )
         
         if st.button("Generate Ecosystem Bullet Points", key="gen_ecosystem"):
@@ -1189,12 +1846,11 @@ with bullet_points_tab:
                 with st.spinner("Generating ecosystem bullet points..."):
                     ecosystem_bullets = chain_ecosystem_bullet_point_prompt.run(
                         context_text=ecosystem_context,
-                        example_bullet_points=default_ecosystem_examples  # Use the loaded examples directly
+                        example_bullet_points=default_ecosystem_examples
                     )
                 st.markdown("#### Generated Ecosystem Bullet Points")
                 st.write(ecosystem_bullets)
                 
-                # Add copy button
                 if st.button("Copy to Clipboard", key="copy_ecosystem"):
                     st.success("Ecosystem bullet points copied to clipboard!")
             else:
@@ -1204,14 +1860,76 @@ with bullet_points_tab:
         st.markdown("### Community Bullet Points")
         st.markdown("Generate bullet points related to community engagement, events, social metrics, and user adoption.")
         
+        # Add tweet and link selection section for community
+        st.markdown("### Recent Tweets and Links")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### Recent Tweets")
+            recent_tweets_comm = fetch_recent_tweets(st.session_state.get("supabase_client"), [selected_client], limit_per_fetch=10)
+            
+            if recent_tweets_comm:
+                tweet_options = [f"{tweet['created_at'].strftime('%Y-%m-%d %H:%M')}: {tweet['text'][:50]}..." for tweet in recent_tweets_comm]
+                selected_tweets_comm = st.multiselect(
+                    "Select tweets to include",
+                    options=tweet_options,
+                    key="community_tweet_selector"
+                )
+                
+                if selected_tweets_comm:
+                    with st.expander("Selected Tweets"):
+                        for tweet_option in selected_tweets_comm:
+                            tweet = next((t for t in recent_tweets_comm if tweet_option.startswith(t['created_at'].strftime('%Y-%m-%d %H:%M'))), None)
+                            if tweet:
+                                st.markdown(f"- **{tweet['created_at'].strftime('%Y-%m-%d %H:%M')}**: {tweet['text']}")
+                                st.markdown(f"  [Link]({tweet['url']})")
+            else:
+                st.info("No recent tweets found for this client.")
+        
+        with col2:
+            st.markdown("#### Recent Links")
+            recent_links_comm = fetch_client_links(st.session_state.get("supabase_client"), selected_client, limit=10)
+            
+            if recent_links_comm:
+                link_options = [f"{link['title']} (Last checked: {link['last_checked']})" for link in recent_links_comm]
+                selected_links_comm = st.multiselect(
+                    "Select links to include",
+                    options=link_options,
+                    key="community_link_selector"
+                )
+                
+                if selected_links_comm:
+                    with st.expander("Selected Links"):
+                        for link_option in selected_links_comm:
+                            link = next((l for l in recent_links_comm if link_option.startswith(l['title'])), None)
+                            if link:
+                                st.markdown(f"- **{link['title']}**")
+                                st.markdown(f"  URL: {link['url']}")
+                                st.markdown(f"  Last checked: {link['last_checked']}")
+            else:
+                st.info("No recent links found for this client.")
+        
+        # Add button to add selected items to community context
+        if st.button("Add Selected Items to Community Context"):
+            selected_tweet_data = [t for t in recent_tweets_comm if f"{t['created_at'].strftime('%Y-%m-%d %H:%M')}: {t['text'][:50]}..." in selected_tweets_comm]
+            selected_link_data = [l for l in recent_links_comm if f"{l['title']} (Last checked: {l['last_checked']})" in selected_links_comm]
+            
+            formatted_data = format_fetched_data_for_context(selected_tweet_data, selected_link_data)
+            
+            if st.session_state.community_context:
+                st.session_state.community_context = f"{st.session_state.community_context}\n\n{formatted_data}"
+            else:
+                st.session_state.community_context = formatted_data
+            
+            st.success("Selected items added to community context!")
+        
         # Load community examples from global file but don't display them to the user
         default_community_examples = load_bullet_point_examples("Community")
         
-        # Remove the text area for examples
-        
         community_context = st.text_area(
             "Community Context Information", 
-            height=150
+            height=150,
+            value=st.session_state.community_context
         )
         
         if st.button("Generate Community Bullet Points", key="gen_community"):
@@ -1219,12 +1937,11 @@ with bullet_points_tab:
                 with st.spinner("Generating community bullet points..."):
                     community_bullets = chain_community_bullet_point_prompt.run(
                         context_text=community_context,
-                        example_bullet_points=default_community_examples  # Use the loaded examples directly
+                        example_bullet_points=default_community_examples
                     )
                 st.markdown("#### Generated Community Bullet Points")
                 st.write(community_bullets)
                 
-                # Add copy button
                 if st.button("Copy to Clipboard", key="copy_community"):
                     st.success("Community bullet points copied to clipboard!")
             else:
@@ -1443,7 +2160,7 @@ with image_tab:
     st.markdown("### Image Style Options")
     image_size = st.selectbox(
         "Image Size", 
-        ["1024x1024", "1024x1792", "1792x1024"],
+        ["1024x1024", "1024x1792", "1792x1024", "256x256", "512x512"],
         index=0,
         key="image_size_select"
     )
@@ -1480,43 +2197,131 @@ with image_tab:
         except Exception as e:
             return None, f"Error generating image: {str(e)}"
     
+    # In the image_tab section, update the image generation part:
+
+    # Add an option for custom prompt
+    use_custom_prompt = st.checkbox("Use custom image prompt", value=False, key="use_custom_prompt")
+
+    # Initialize content variables
+    has_content = False
+    newsletter_content = ""
+    newsletter_title = ""
+
+    if use_custom_prompt:
+        # Let the user write their own prompt
+        custom_prompt = st.text_area(
+            "Custom image prompt", 
+            placeholder="A minimalist abstract representation of blockchain technology with blue and purple gradients...",
+            height=100,
+            key="custom_image_prompt"
+        )
+        # Store in session state
+        if custom_prompt:
+            st.session_state.generated_image_prompt = custom_prompt
+    else:
+        # Better newsletter content extraction
+        # Check if we have content and title
+        if use_newsletter_for_image and st.session_state.final_newsletter:
+            newsletter_content = st.session_state.final_newsletter
+            newsletter_title = st.session_state.newsletter_title if st.session_state.newsletter_title else "Newsletter"
+            has_content = True
+        elif 'image_content' in st.session_state and st.session_state.image_content:
+            newsletter_content = st.session_state.image_content
+            newsletter_title = st.session_state.image_title if 'image_title' in st.session_state and st.session_state.image_title else "Newsletter"
+            has_content = True
+        else:
+            content_input = st.text_area(
+                "Enter Newsletter Content for Image Generation", 
+                height=200,
+                key="new_image_content_input"
+            )
+            title_input = st.text_input(
+                "Enter Newsletter Title", 
+                value="Newsletter",
+                key="new_image_title_input"
+            )
+            
+            if content_input:
+                newsletter_content = content_input
+                newsletter_title = title_input
+                has_content = True
+                # Store in session state
+                st.session_state.image_content = content_input
+                st.session_state.image_title = title_input
+
     # One-shot generate button
     if st.button("Generate Cover Image", key="gen_cover_image"):
-        if st.session_state.image_content and selected_image_client:
-            # Step 1: Generate the image prompt
-            with st.spinner("Generating image prompt..."):
-                # Use the selected model from session state, or fall back to anthropic_llm
-                llm = st.session_state.get("llm", anthropic_llm)
-                
-                # Create a prompt template for image generation
-                image_generation_prompt = ChatPromptTemplate.from_messages([
-                    (
-                        "system",
-                        "Create professional image prompts (15-25 words) for financial/tech publications like Bloomberg or The Times. Focus on 3-5 key elements maximum. Use clean, impactful imagery with strong visual hierarchy. Prefer abstract representations, data visualizations, or symbolic elements. Avoid text, faces, and cluttered scenes."
-                    ),
-                    (
-                        "human",
-                        "Newsletter topic: {newsletter_title}\nClient: {client_name}\n\nCreate a Bloomberg/Times-style image prompt (15-25 words) with only 3-5 key visual elements for a professional newsletter cover."
-                    )
-                ])
-                
-                chain_image_generation = LLMChain(llm=llm, prompt=image_generation_prompt)
-                
-                generated_prompt = chain_image_generation.run(
-                    newsletter_content=st.session_state.image_content,
-                    newsletter_title=st.session_state.image_title,
-                    client_name=selected_image_client
-                )
-                
-                # Store the generated prompt in session state
-                st.session_state.generated_image_prompt = generated_prompt
+        if (has_content or use_custom_prompt) and selected_image_client:
+            # Step 1: Get or generate the image prompt
+            with st.spinner("Preparing image prompt..."):
+                if use_custom_prompt and 'generated_image_prompt' in st.session_state and st.session_state.generated_image_prompt:
+                    # Just use the custom prompt directly
+                    generated_prompt = st.session_state.generated_image_prompt
+                else:
+                    # Generate prompt based on content
+                    # Use the selected model from session state, or fall back to anthropic_llm
+                    llm = st.session_state.get("llm", anthropic_llm)
+                    
+                    # Create a more focused prompt template for image generation
+                    image_generation_prompt = ChatPromptTemplate.from_messages([
+                        (
+                            "system",
+                            "Create professional image prompts for financial/tech publications. Analyze the newsletter content and title to extract the main themes and concepts. Focus on creating a visually striking, abstract representation with 3-5 key elements that capture the essence of the content. Your prompt should be 15-25 words only, avoiding any text elements in the image itself. Prefer abstract representations, data visualizations, or symbolic elements with clean professional aesthetics."
+                        ),
+                        (
+                            "human",
+                            """Newsletter Title: {newsletter_title}
+                            
+                            Newsletter Content: 
+                            {newsletter_content}
+                            
+                            Client: {client_name}
+                            
+                            Create a focused, professional image prompt (15-25 words) capturing the key themes from this content. The image should be suitable for a financial/blockchain newsletter cover."""
+                        )
+                    ])
+                    
+                    chain_image_generation = LLMChain(llm=llm, prompt=image_generation_prompt)
+                    
+                    # Extract key sections if possible to avoid token limits
+                    if len(newsletter_content) > 2000:  # If content is too long
+                        # Try to extract just the "What happened" and "Big picture" sections
+                        import re
+                        what_happened = re.search(r'What happened:.*?(?=Why does it matter:|$)', newsletter_content, re.DOTALL)
+                        big_picture = re.search(r'The big picture:.*?(?=$)', newsletter_content, re.DOTALL)
+                        
+                        extracted_content = ""
+                        if what_happened:
+                            extracted_content += what_happened.group(0) + "\n\n"
+                        if big_picture:
+                            extracted_content += big_picture.group(0)
+                        
+                        if extracted_content:
+                            newsletter_content = extracted_content
+                        else:
+                            # If extraction failed, just take the first 1000 chars
+                            newsletter_content = newsletter_content[:1000] + "..."
+                    
+                        # Generate the prompt
+                        generated_prompt = chain_image_generation.run(
+                            newsletter_content=newsletter_content,
+                            newsletter_title=newsletter_title,
+                            client_name=selected_image_client
+                        )
+                        
+                        # Clean up the generated prompt
+                        # Remove any formatting or quotation marks that might be included
+                        generated_prompt = generated_prompt.strip().strip('"\'')
+                        
+                        # Store the generated prompt in session state
+                        st.session_state.generated_image_prompt = generated_prompt
             
             # Display the generated prompt
-            st.markdown("### Generated Image Prompt")
+            st.markdown("### Image Prompt")
             st.write(st.session_state.generated_image_prompt)
             
-            # Step 2: Generate the image using OpenAI API directly
-            with st.spinner("Generating image with DALL-E..."):
+            # Step 2: Generate the image using OpenAI API
+            with st.spinner("Generating image with GPT-Image-1..."):
                 try:
                     # Get OpenAI API key from environment or session state
                     openai_api_key = os.environ.get("OPENAI_API_KEY", "")
@@ -1534,41 +2339,44 @@ with image_tab:
                         st.stop()
                     
                     # Generate the image
-                    image_url, error = generate_image_dalle(
+                    image_data, error = generate_image_dalle(
                         prompt=st.session_state.generated_image_prompt,
                         api_key=openai_api_key,
                         size=image_size,
                         quality=image_quality
                     )
                     
-                    if image_url:
-                        # Store the URL in session state
-                        st.session_state.generated_image_url = image_url
+                    if image_data:
+                        # Store the image data in session state
+                        st.session_state.generated_image_data = image_data
                         
-                        # Display the image
+                        # Display the image directly
                         st.markdown("### Generated Image")
-                        st.image(image_url, caption="Generated cover image")
+                        st.image(image_data, caption="Generated cover image")
                         
-                        # Download button
-                        st.markdown(f"[Download Image]({image_url})")
+                        # Add download button
+                        btn = st.download_button(
+                            label="Download Image",
+                            data=image_data,
+                            file_name=f"newsletter_image_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png",
+                            mime="image/png"
+                        )
                         
                         # Image analysis option
                         with st.expander("Image Analysis"):
                             st.markdown("### Image Analysis")
                             if st.button("Analyze Image", key="analyze_image_button"):
                                 with st.spinner("Analyzing image with Claude Vision..."):
-                                    image_description = generate_image_description_claude(
-                                        image_url=image_url,
-                                        api_key=api_key
-                                    )
-                                    st.write(image_description)
+                                    # For Claude Vision we need a URL, so this would need modification
+                                    # to either upload the image or convert it to data URL
+                                    st.info("Image analysis with local images requires uploading first. Feature coming soon.")
                     else:
                         st.error(f"Failed to generate image: {error}")
                 except Exception as e:
                     st.error(f"Error generating image: {str(e)}")
-                    st.info("Make sure your OpenAI API key is set correctly and has access to DALL-E 3.")
+                    st.info("Make sure your OpenAI API key is set correctly and has access to GPT-Image-1.")
         else:
-            st.error("Please provide newsletter content and select a client for the image.")
+            st.error("Please provide newsletter content or a custom prompt, and select a client.")
     
     # Display previously generated image if available
     elif "generated_image_url" in st.session_state and st.session_state.generated_image_url:
@@ -2131,10 +2939,12 @@ def generate_image_description_claude(image_url, api_key):
         return f"Exception: {str(e)}"
 
 try:
-    # Your existing code here
+    
     pass  # Replace with actual code
 except Exception as e:
     st.error(f"An error occurred: {str(e)}")
     st.write("Please check the logs for more details.")
     import traceback
     st.code(traceback.format_exc())
+
+
