@@ -175,7 +175,7 @@ DO NOT:
 # Create the agent with the proper prompt template and error handling
 agent = create_react_agent(
     llm=ChatAnthropic(
-        api_key=ANTHROPIC_API_KEY,
+        api_key=os.environ.get("ANTHROPIC_API_KEY"),
         model="claude-3-7-sonnet-latest",
         temperature=0,
         timeout=None,
@@ -1663,7 +1663,7 @@ with react_agent_tab:
         # Use existing tools with the ConversationalChatAgent
         chat_agent = ConversationalChatAgent.from_llm_and_tools(
             llm=ChatAnthropic(
-                api_key=ANTHROPIC_API_KEY,
+                api_key=os.environ.get("ANTHROPIC_API_KEY"),
                 model="claude-3-7-sonnet-latest",
                 temperature=0,
                 streaming=True
